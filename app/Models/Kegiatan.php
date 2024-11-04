@@ -40,4 +40,8 @@ class Kegiatan extends Model
         return $this->hasMany(Laporan::class);
     }
 
+    public function dusun(): HasMany
+    {
+        return $this->hasMany(Dusun::class);
+    }
 }
