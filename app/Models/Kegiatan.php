@@ -16,12 +16,12 @@ class Kegiatan extends Model
         'status',
         'volume',
         'satuan',
-        'tahun1',
-        'tahun2',
-        'tahun3',
-        'tahun4',
-        'tahun5',
-        'tahun6',
+        'tahun_1',
+        'tahun_2',
+        'tahun_3',
+        'tahun_4',
+        'tahun_5',
+        'tahun_6',
         'lokasi',
         'id_dusun',
         'longitude',
@@ -39,4 +39,5 @@ class Kegiatan extends Model
     {
         return $this->hasMany(Laporan::class);
     }
+
 }
