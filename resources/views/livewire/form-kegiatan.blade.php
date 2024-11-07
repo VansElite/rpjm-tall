@@ -147,6 +147,13 @@ new class extends Component {
         $this->showProgram = !$this->showProgram;
     }
 
+    //Update longitude Latitude
+    public function updateCoordinates($lat, $lng)
+    {
+        $this->latitude = $lat;
+        $this->longitude = $lng;
+    }
+
     public function store()
     {
         $validated = $this->validate();
@@ -266,10 +273,10 @@ new class extends Component {
         <x-menu-separator />
         <div class="grid gap-4 md:grid-cols-2">
             <div>
-                <x-input label="Longitude" name="longitude" wire:model="longitude" readonly />
+                <x-input label="Longitude" id="longitude" wire:model="longitude" readonly />
             </div>
             <div>
-                <x-input label="Latitude" name="latitude" wire:model="latitude" readonly />
+                <x-input label="Latitude" id="latitude" wire:model="latitude" readonly />
             </div>
             <div class="col-span-2">
                 <div class="h-48 w-160" id='peta'></div>
@@ -308,10 +315,12 @@ new class extends Component {
         map.on('click', e => {
             console.log(`[${e.lngLat.lng}, ${e.lngLat.lat}]`);
             newCoordinateMarker.setLngLat(e.lngLat);
-            const longitudeInput = document.getElementById('longitude');
-            const latitudeInput = document.getElementById('latitude');
-            longitudeInput.value = e.lngLat.lng;
-            latitudeInput.value = e.lngLat.lat;
+
+            const lng = e.lngLat.lng;
+            const lat = e.lngLat.lat;
+
+            window.livewire.dispatch('updateCoordinates', lat, lng);
+
         });
     </script>
 @endscript
