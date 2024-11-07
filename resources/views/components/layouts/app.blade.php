@@ -9,7 +9,6 @@
     <script src='https://api.mapbox.com/mapbox-gl-js/v3.7.0/mapbox-gl.js'></script>
     <link href='https://api.mapbox.com/mapbox-gl-js/v3.7.0/mapbox-gl.css' rel='stylesheet' />
 
-
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
@@ -17,16 +16,16 @@
 
     <livewire:navbar>
         {{-- NAVBAR mobile only
-    <x-nav sticky class="lg:hidden">
-        <x-slot:brand>
-            <x-app-brand />
-        </x-slot:brand>
-        <x-slot:actions>
-            <label for="main-drawer" class="lg:hidden me-3">
-                <x-icon name="o-bars-3" class="cursor-pointer" />
-            </label>
-        </x-slot:actions>
-    </x-nav> --}}
+        <x-nav sticky class="lg:hidden">
+            <x-slot:brand>
+                <x-app-brand />
+            </x-slot:brand>
+            <x-slot:actions>
+                <label for="main-drawer" class="lg:hidden me-3">
+                    <x-icon name="o-bars-3" class="cursor-pointer" />
+                </label>
+            </x-slot:actions>
+        </x-nav> --}}
 
         {{-- MAIN --}}
         <x-main with-nav full-width>
@@ -34,13 +33,13 @@
             <livewire:sidebar>
 
 
-            {{-- The `$slot` goes here --}}
-            <x-slot:content full-width full-height>
-                {{ $slot }}
-            </x-slot:content>
+                {{-- The `$slot` goes here --}}
+                <x-slot:content full-width full-height>
+                    {{ $slot }}
+                </x-slot:content>
         </x-main>
 
-        {{--  TOAST area --}}
+        {{-- TOAST area --}}
         <x-toast />
 </body>
 
