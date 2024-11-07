@@ -5,6 +5,7 @@ use App\Models\Program;
 use App\Models\Dusun;
 use App\Models\Kegiatan;
 use Livewire\Attributes\Validate;
+use Livewire\Attributes\Renderless;
 use Livewire\Volt\Component;
 
 new class extends Component {
@@ -71,6 +72,11 @@ new class extends Component {
     public $programs;
     public $dusuns;
 
+    //init variable untuk addProgram
+    public $addProgram = false;
+    public $nama_program;
+    public $cangkupan_program;
+
     //init input data
    #[Validate('required', message: 'Tolong Pilih Salah Satu Bidang')]
     public $selectedBidang;
@@ -124,6 +130,23 @@ new class extends Component {
         $this->programs = Program::where('id_bidang', $bidangId)->get();
     }
 
+    #[Renderless]
+    public function showAddProgram()
+    {
+        $this->addProgram = !$this->addProgram;
+    }
+
+    #[Renderless]
+    public function createProgram()
+    {
+        Program::create([
+            'nama'=> $this->nama_program,
+            'id_bidang'=> $this->selectedBidang,
+            'cangkupan_program'=> $this->cangkupan_program,
+    ]);
+        $this->addProgram = !$this->addProgram;
+    }
+
     public function store()
     {
 
@@ -155,16 +178,44 @@ new class extends Component {
 
 <div>
     <x-form wire:submit.prevent="store">
-        <x-select label="Bidang" :options="$bidangs" option-value="id" option-label="nama" wire:model.live="selectedBidang" />
+        <x-select label="Bidang" :options="$bidangs" option-value="id" option-label="nama"
+            wire:model.live="selectedBidang" />
         <div class="grid grid-cols-10 gap-4 h-30">
             <div class="col-span-8">
                 <x-select label="Program" :options="$programs" option-value="id" option-label="nama"
                     wire:model="selectedProgram" />
             </div>
             <div class="justify-center col-span-2 mx-5 pt-7 ">
-                <x-button label="Tambah Program" icon="o-home" class="btn-outline" responsive />
+                <x-button label="Tambah Program" icon="o-home" class="btn-outline" wire:click="showAddProgram"
+                    responsive />
             </div>
         </div>
+
+
+        <div class="grid gap-4 md:grid-rows-2">
+            @if($addProgram)
+            <div class="grid gap-4 md:grid-cols-10">
+                <div class="col-span-5">
+                    <x-input label="Nama Program" wire:model="nama_program" />
+                </div>
+                <div class="col-span-5">
+                    <x-select label="Bidang" :options="$bidangs" option-value="id" option-label="nama"
+                        wire:model.live="selectedBidang" />
+                </div>
+            </div>
+            <div class="grid gap-4 md:grid-cols-10">
+                <div class="col-span-8">
+                    <x-input label="Cangkupan Program" wire:model="cangkupan_program" />
+                </div>
+                <div class="justify-center col-span-2 mx-5 pt-7 ">
+                    <x-button label="Tambah" icon="o-home" class="btn-outline" wire:click="createProgram" responsive />
+                </div>
+            </div>
+            <hr />
+            @endif
+        </div>
+
+
         <div class="grid gap-4 md:grid-cols-2">
             <div>
                 <x-input label="Nama Kegiatan" wire:model="nama" />
@@ -230,8 +281,8 @@ new class extends Component {
         </div>
         <hr />
 
-        <x-textarea label="Deskripsi" wire:model="deskripsi" placeholder="Tuliskan Deskripsi Kegiatan ..." hint="Max 1000 chars" rows="5"
-            inline />
+        <x-textarea label="Deskripsi" wire:model="deskripsi" placeholder="Tuliskan Deskripsi Kegiatan ..."
+            hint="Max 1000 chars" rows="5" inline />
 
         <x-slot:actions>
             <x-button label="Cancel" />
