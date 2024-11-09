@@ -203,7 +203,7 @@ new class extends Component {
                     <x-input label="Nama Program" wire:model="nama_program" />
                 </div>
                 <div class="col-span-5">
-                    <x-select label="Bidang" :options="$bidangs" option-value="id" option-label="nama"
+                    <x-select label="Pilih Bidang" :options="$bidangs" option-value="id" option-label="nama"
                         wire:model.live="selectedBidang" />
                 </div>
             </div>
@@ -212,7 +212,7 @@ new class extends Component {
                     <x-input label="Cangkupan Program" wire:model="cangkupan_program" />
                 </div>
                 <div class="justify-center col-span-2 mx-5 pt-7 ">
-                    <x-button label="Tambah Program" icon="o-plus" class="btn-outline" wire:click="createProgram"
+                    <x-button label="Simpan Program" icon="o-plus" class="btn-outline" wire:click="createProgram"
                         responsive />
                 </div>
             </div>
@@ -273,10 +273,10 @@ new class extends Component {
         <x-menu-separator />
         <div class="grid gap-4 md:grid-cols-2">
             <div>
-                <x-input label="Longitude" id="longitude" wire:model="longitude" readonly />
+                <x-input label="Longitude" id="longitude" value="latitude" wire:model="longitude" readonly />
             </div>
             <div>
-                <x-input label="Latitude" id="latitude" wire:model="latitude" readonly />
+                <x-input label="Latitude" id="latitude" value="latitude" wire:model="latitude" readonly />
             </div>
             <div class="col-span-2">
                 <div class="h-48 w-160" id='peta'></div>

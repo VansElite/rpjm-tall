@@ -6,8 +6,8 @@ new class extends Component {
     //
 }; ?>
 
-<div>
-    <div class="size-max" id='peta'></div>
+<div class="h-dvh w-140 max-h-fit">
+    <div class="w-full h-4/5" id='peta'></div>
 </div>
 
 @script
@@ -16,8 +16,8 @@ mapboxgl.accessToken = 'pk.eyJ1IjoidmFuc2VsaXRlMjEiLCJhIjoiY20yeWd2dDZyMDB3MjJtc
 const map = new mapboxgl.Map({
 	container: 'peta', // container ID
 	style: 'mapbox://styles/mapbox/streets-v12', // style URL
-	center: [-74.5, 40], // starting position [lng, lat]
-	zoom: 9, // starting zoom
+	center: [110.299322, -7.9701668], // starting position [lng, lat]
+	zoom: 13, // starting zoom
 });
 
 
