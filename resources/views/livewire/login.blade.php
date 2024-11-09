@@ -40,15 +40,24 @@ class extends Component {
 
 ?>
 
-<div class="md:w-96 mx-auto mt-20">
-    <div class="mb-10 text-center text-2xl font-bold">RPJM</div>
+    <div class="mx-auto mt-20 md:w-96">
+        <x-card>
+            <div class="mb-5 text-2xl font-bold text-center">RPJM Tirtomulyo</div>
+            <div class="grid justify-items-center">
+                <img src="{{ asset('images/hd-logo.png') }}" class="mb-5 max-h-32 max-w-25"/>
+            </div>
 
-    <x-form wire:submit="login">
-        <x-input label="E-mail" wire:model="email" icon="o-envelope" inline />
-        <x-input label="Password" wire:model="password" type="password" icon="o-key" inline />
+            <x-form wire:submit="login">
+                <x-input label="E-mail" wire:model="email" icon="o-envelope" inline />
+                <x-input label="Password" wire:model="password" type="password" icon="o-key" inline />
 
-        <x-slot:actions>
-            <x-button label="Login" type="submit" icon="o-paper-airplane" class="btn-primary" spinner="login" />
-        </x-slot:actions>
-    </x-form>
-</div>
+                <x-slot:actions>
+                    <x-button label="Home" href="/" wire:navigate />
+                    <x-button label="Login" type="submit" icon="o-paper-airplane" class="btn-primary" spinner="login"/>
+                </x-slot:actions>
+            </x-form>
+        </x-card>
+    </div>
+
+
+
