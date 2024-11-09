@@ -57,11 +57,21 @@ new class extends Component {
         <x-icon name="o-moon" />
     </button>
 
-    <x-dropdown>
-        <x-slot:trigger>
-            <x-button label="Guest" icon="o-user" class="btn-outline" responsive />
-        </x-slot:trigger>
-        <x-menu-item title="log in" icon="o-arrow-left-end-on-rectangle" />
-        <x-menu-item title="log out" icon="o-arrow-right-start-on-rectangle" />
-    </x-dropdown>
+    @guest
+        <x-button label="Login" link="/login" icon="o-user" class="btn-outline" />
+    @endguest
+
+    @auth
+        <x-dropdown>
+            <x-slot:trigger>
+                <x-button icon="o-user" class="btn-outline">
+                    <div class="text-left">
+                        <p class="font-bold">{{ auth()->user()->name }}</p>
+                        <p class="text-gray-400 text-xs">{{ auth()->user()->role->name }}</p>
+                    </div>
+                </x-button>
+            </x-slot:trigger>
+            <x-menu-item title="Logout" link="/logout" icon="o-arrow-right-start-on-rectangle" />
+        </x-dropdown>
+    @endauth
 </nav>
