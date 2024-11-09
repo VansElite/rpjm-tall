@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-theme="dark">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
 <head>
     <meta charset="utf-8">
@@ -9,12 +9,19 @@
     <script src='https://api.mapbox.com/mapbox-gl-js/v3.7.0/mapbox-gl.js'></script>
     <link href='https://api.mapbox.com/mapbox-gl-js/v3.7.0/mapbox-gl.css' rel='stylesheet' />
 
-    <!--- for dark mode --> <script src="https://cdn.jsdelivr.net/npm/theme-change@2.0.2/index.js"></script>
-
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
-<body class="min-h-screen font-sans antialiased bg-base-200/50 dark:bg-base-200">
+<body
+    class="min-h-screen font-sans antialiased bg-base-200/50 dark:bg-base-200"
+    x-init="
+        const currentTheme = localStorage.getItem('theme');
+        document.documentElement.setAttribute('data-theme', currentTheme ? currentTheme : 'dark');
+        if (!currentTheme) {
+            localStorage.setItem('theme', 'dark')
+        }
+    "
+>
     <livewire:navbar />
     <x-main with-nav full-width>
         <livewire:sidebar />

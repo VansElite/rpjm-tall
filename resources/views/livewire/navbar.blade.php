@@ -53,7 +53,14 @@ new class extends Component {
 
     <x-button label="User Management" icon="o-user-group" link="###" class="btn-ghost" responsive />
 
-    <button data-toggle-theme="dark,light" class="mr-2">
+    <button class="mr-2" @click="
+        const currentTheme = localStorage.getItem('theme') === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute(
+            'data-theme',
+            currentTheme
+        );
+        localStorage.setItem('theme', currentTheme);
+    ">
         <x-icon name="o-moon" />
     </button>
 
