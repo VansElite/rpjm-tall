@@ -13,8 +13,11 @@ new class extends Component {
     <x-nav sticky full-width>
         <x-slot:brand>
             {{-- Brand --}}
-            <x-app-brand class="mr-8 max-h-12" />
+            <h1>RPJM</h1>
+        </x-slot:brand>
 
+        {{-- Right side actions --}}
+        <x-slot:actions>
             <x-dropdown label="Bidang" no-x-anchor class="mx-1 btn-ghost btn-md" responsive>
                 <x-menu-item title="Pendidikan" />
                 <x-menu-item title="Kesehatan" />
@@ -38,12 +41,15 @@ new class extends Component {
                 <x-menu-item title="Sedang Berjalan" />
                 <x-menu-item title="Direncanakan" />
             </x-dropdown>
-        </x-slot:brand>
 
-        {{-- Right side actions --}}
-        <x-slot:actions>
             <x-button label="Dashboard" icon="s-book-open" link="###" class="btn-ghost" responsive />
+
             <x-button label="User Management" icon="o-user-group" link="###" class="btn-ghost" responsive />
+
+            <button data-toggle-theme="dark,light">
+                <x-icon name="o-moon" />
+            </button>
+
             <x-dropdown>
                 <x-slot:trigger>
                     <x-button label="Guest" icon="o-user" class="btn-outline" responsive />
