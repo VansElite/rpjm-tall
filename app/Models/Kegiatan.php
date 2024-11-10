@@ -26,7 +26,6 @@ class Kegiatan extends Model
         'id_dusun',
         'longitude',
         'latitude',
-        'progres',
         'deskripsi',
     ];
 

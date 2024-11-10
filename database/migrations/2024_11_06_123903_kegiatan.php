@@ -30,7 +30,6 @@ return new class extends Migration
             $table->foreign('id_dusun')->references('id')->on('dusun');
             $table->string('longitude');
             $table->string('latitude');
-            $table->integer('progres');
             $table->text('deskripsi');
             $table->timestamps();
         });
