@@ -108,7 +108,6 @@ new class extends Component {
     public $longitude;
     #[Validate('required', message: 'Tolong Pilih Lokasi pada Map')]
     public $latitude;
-    public $progres = 0;
     #[Validate('required', message: 'Jangan Kosongkan Deksripsi Kegiatan')]
     public $deskripsi;
 
@@ -174,7 +173,6 @@ new class extends Component {
             'id_dusun' => $this->selectedDusun,
             'longitude' => $this->longitude,
             'latitude' => $this->latitude,
-            'progres' => $this->progres,
             'deskripsi' => $this->deskripsi,
         ]);
 
