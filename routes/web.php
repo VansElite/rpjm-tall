@@ -7,7 +7,8 @@ use Livewire\Volt\Volt;
 Volt::route('/login', 'login')->name('login'); //login page
 
 Volt::route('/', 'index');
-Volt::route('/form','form-kegiatan');
+Volt::route('/tambah/kegiatan','form-kegiatan');
+Volt::route('/tambah/laporan','form-laporan');
 Volt::route('/dashboard','dashboard');
 
 // Define the logout
