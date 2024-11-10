@@ -63,16 +63,7 @@ new class extends Component {
         </ul>
     </details>
 
-    <button class="mr-2" @click="
-        const currentTheme = localStorage.getItem('theme') === 'dark' ? 'light' : 'dark';
-        document.documentElement.setAttribute(
-            'data-theme',
-            currentTheme
-        );
-        localStorage.setItem('theme', currentTheme);
-    ">
-        <x-icon name="o-moon" />
-    </button>
+    <x-theme-toggle />
 
     @guest
         <x-button label="Login" link="/login" icon="o-user" class="btn-outline" />

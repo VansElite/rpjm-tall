@@ -12,16 +12,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
-<body
-    class="h-dvh font-sans antialiased flex flex-col"
-    x-init="
-        const currentTheme = localStorage.getItem('theme');
-        document.documentElement.setAttribute('data-theme', currentTheme ? currentTheme : 'dark');
-        if (!currentTheme) {
-            localStorage.setItem('theme', 'dark')
-        }
-    "
->
+<body class="h-dvh font-sans antialiased flex flex-col">
     <livewire:navbar />
 
     <div class="flex-grow overflow-auto">
