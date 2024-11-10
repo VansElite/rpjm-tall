@@ -9,7 +9,7 @@ new class extends Component {
     //
 }; ?>
 
-<nav class="p-2 flex gap-2 items-center border border-base-300">
+<nav class="flex items-center gap-2 p-2 border border-base-300">
     <a href="/" wire:navigate class="mx-4 text-2xl font-bold">RPJM</a>
 
     <x-dropdown label="Bidang" class="btn-ghost" no-x-anchor responsive>
@@ -39,7 +39,7 @@ new class extends Component {
     <div id="space" class="flex-grow"></div>
 
     <details class="dropdown">
-        <summary class="btn btn-ghost m-1">
+        <summary class="m-1 btn btn-ghost">
             <x-icon name="o-plus" />
             <span>Tambah</span>
         </summary>
@@ -51,15 +51,15 @@ new class extends Component {
     </details>
 
     <details class="dropdown">
-        <summary class="btn btn-ghost m-1">
+        <summary class="m-1 btn btn-ghost">
             <x-icon name="o-clipboard-document-list" />
             <span>Direktori</span>
         </summary>
         <ul class="menu dropdown-content bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
             <li><a wire:navigate href="{{ route('direktori-bidang') }}">Bidang</a></li>
-            <li><a wire:navigate href="#">Program</a></li>
-            <li><a wire:navigate href="#">Kegiatan</a></li>
-            <li><a wire:navigate href="#">Laporan</a></li>
+            <li><a wire:navigate href="{{ route('direktori-program') }}">Program</a></li>
+            <li><a wire:navigate href="{{ route('direktori-kegiatan') }}">Kegiatan</a></li>
+            <li><a wire:navigate href="{{ route('direktori-laporan') }}">Laporan</a></li>
             <li><a wire:navigate href="#">Users</a></li>
         </ul>
     </details>
@@ -76,7 +76,7 @@ new class extends Component {
                 <x-button icon="o-user" class="btn-outline">
                     <div class="text-left">
                         <p class="font-bold">{{ auth()->user()->name }}</p>
-                        <p class="text-gray-400 text-xs">{{ auth()->user()->role->name }}</p>
+                        <p class="text-xs text-gray-400">{{ auth()->user()->role->name }}</p>
                     </div>
                 </x-button>
             </x-slot:trigger>

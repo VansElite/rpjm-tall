@@ -1,32 +1,38 @@
 <?php
 
-use function Livewire\Volt\{state,mount};
 use App\Models\Bidang;
+use Livewire\Volt\Component;
 
-state([
-    'headers' => [],
-    'data' => [],
-]);
+new class extends Component {
+    public $bidangs;
 
-mount(function () {
-    $this->headers = [
-        ['key' => 'id', 'label' => 'ID'],
+    public $headers = [
+        ['key' => 'id', 'label' => 'No'],
         ['key' => 'nama', 'label' => 'Nama Bidang'],
     ];
-    $this->data = Bidang::all();
-});
 
-$delete = function ($id) {
-    Bidang::destroy($id);
-    return to_route('direktori-bidang');
-}
+    public function mount()
+    {
+        $this->bidangs = Bidang::all();
+    }
+    public function delete($id)
+    {
+        Bidang::destroy($id);
+        return to_route('direktori-bidang');
+    }
+}; ?>
 
-?>
-
-<div class="m-4">
-    <x-table :headers="$headers" :rows="$data">
-        @scope('actions', $row_bidang)
-            <x-button icon="o-trash" wire:click="delete({{ $row_bidang->id }})" spinner class="btn-sm" />
-        @endscope
-    </x-table>
+<div>
+    <x-card title="Data Bidang RPJM Tirtomulyo" subtitle="Data Rencana Pembangunan Jangka Menengah Tirtomulyo" separator>
+        <x-table :headers="$headers" :rows="$bidangs">
+            {{-- Special `actions` slot --}}
+            @scope('actions', $bidang)
+            <div class="flex gap-2">
+                <x-button icon="o-folder-open" wire:click="#" spinner class="btn-sm" />
+                <x-button icon="o-pencil-square" wire:click="#" spinner class="btn-sm" />
+                <x-button icon="o-trash" wire:click="delete({{ $bidang->id }})" spinner class="btn-sm" />
+            </div>
+            @endscope
+        </x-table>
+    </x-card>
 </div>
