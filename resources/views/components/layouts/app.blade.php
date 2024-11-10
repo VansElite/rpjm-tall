@@ -13,7 +13,7 @@
 </head>
 
 <body
-    class="min-h-screen font-sans antialiased bg-base-200/50 dark:bg-base-200"
+    class="h-dvh font-sans antialiased flex flex-col"
     x-init="
         const currentTheme = localStorage.getItem('theme');
         document.documentElement.setAttribute('data-theme', currentTheme ? currentTheme : 'dark');
@@ -23,12 +23,10 @@
     "
 >
     <livewire:navbar />
-    <x-main with-nav full-width>
-        <livewire:sidebar />
-        <x-slot:content full-width full-height>
-            {{ $slot }}
-        </x-slot:content>
-    </x-main>
+
+    <div class="flex-grow overflow-auto">
+        {{ $slot }}
+    </div>
 
     <x-toast />
 </body>

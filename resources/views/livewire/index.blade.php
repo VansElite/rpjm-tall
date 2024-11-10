@@ -6,8 +6,8 @@ new class extends Component {
     //
 }; ?>
 
-<div class="h-dvh w-140 max-h-fit">
-    <div class="w-full h-4/5" id='peta'></div>
+<div class="h-full">
+    <div class="w-full h-full" id='peta'></div>
 </div>
 
 @script
