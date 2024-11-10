@@ -38,20 +38,21 @@ new class extends Component {
 
     <div id="space" class="flex-grow"></div>
 
+    <livewire:add-modal />
+
     <details class="dropdown">
         <summary class="btn btn-ghost m-1">
-            <x-icon name="o-plus" />
-            <span>Tambah</span>
+            <x-icon name="o-clipboard-document-list" />
+            <span>Direktori</span>
         </summary>
         <ul class="menu dropdown-content bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
-            <li><a wire:navigate href="/form">Program</a></li>
+            <li><a wire:navigate href="#">Bidang</a></li>
+            <li><a wire:navigate href="#">Program</a></li>
             <li><a wire:navigate href="/form">Kegiatan</a></li>
+            <li><a wire:navigate href="#">Laporan</a></li>
+            <li><a wire:navigate href="#">Users</a></li>
         </ul>
     </details>
-
-    <x-button label="Dashboard" icon="s-book-open" link="###" class="btn-ghost" responsive />
-
-    <x-button label="User Management" icon="o-user-group" link="###" class="btn-ghost" responsive />
 
     <button class="mr-2" @click="
         const currentTheme = localStorage.getItem('theme') === 'dark' ? 'light' : 'dark';
