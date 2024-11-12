@@ -38,7 +38,7 @@ new class extends Component {
 }; ?>
 
 <div>
-    <x-card title="Data Program RPJM Tirtomulyo" subtitle="Data Rencana Pembangunan Jangka Menengah Tirtomulyo"
+    <x-card title="Data Program RPJM Tirtomulyo" class="flex mx-3 my-3 bg-base-200 rounded-xl" subtitle="Data Rencana Pembangunan Jangka Menengah Tirtomulyo"
         separator>
         <x-table :headers="$headers" :rows="$programs">
             {{-- Special `actions` slot --}}
@@ -50,6 +50,5 @@ new class extends Component {
             </div>
             @endscope
         </x-table>
-
     </x-card>
 </div>

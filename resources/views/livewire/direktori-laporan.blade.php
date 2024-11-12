@@ -25,7 +25,7 @@ new class extends Component {
 }; ?>
 
 <div>
-    <x-card title="Data Laporan RPJM Tirtomulyo" subtitle="Data Rencana Pembangunan Jangka Menengah Tirtomulyo" separator>
+    <x-card title="Data Laporan RPJM Tirtomulyo" class="flex mx-3 my-3 bg-base-200 rounded-xl" subtitle="Data Rencana Pembangunan Jangka Menengah Tirtomulyo" separator>
         <x-table :headers="$headers" :rows="$laporans">
             {{-- Special `actions` slot --}}
                 @scope('actions', $laporan)
