@@ -6,9 +6,14 @@ new class extends Component {
     public Bidang $bidang;
     public $nama;
 
+    public function mount()
+    {
+        $this->nama = $this->bidang->nama;
+    }
+
     public function update()
     {
-        Bidang::update([
+        $this->bidang->update([
             // Isi dengan data yang akan diupdate
             'nama' => $this->nama,
         ]);
