@@ -41,6 +41,11 @@ new class extends Component {
         $this->kegiatans = Kegiatan::all();
     }
 
+    public function edit($id)
+    {
+        return to_route('edit-kegiatan', $id);
+    }
+
     public function delete($id)
     {
         Kegiatan::destroy($id);
@@ -50,16 +55,16 @@ new class extends Component {
 }; ?>
 
 <div>
-    <x-card title="Data Kegiatan RPJM Tirtomulyo" subtitle="Data Rencana Pembangunan Jangka Menengah Tirtomulyo" separator>
+    <x-card title="Data Kegiatan RPJM Tirtomulyo" class="flex mx-3 my-3 bg-base-200 rounded-xl" subtitle="Data Rencana Pembangunan Jangka Menengah Tirtomulyo" separator>
         <x-table :headers="$headers" :rows="$kegiatans">
-            {{-- Special `actions` slot --}}
-                @scope('actions', $kegiatan)
-                <div class="flex gap-2">
-                    <x-button icon="o-folder-open" wire:click="#" spinner class="btn-sm" />
-                    <x-button icon="o-pencil-square" wire:click="#" spinner class="btn-sm" />
-                    <x-button icon="o-trash" wire:click="delete({{ $kegiatan->id }})" spinner class="btn-sm" />
-                </div>
-                @endscope
-            </x-table>
+        {{-- Special `actions` slot --}}
+            @scope('actions', $kegiatan)
+            <div class="flex gap-2">
+                <x-button icon="o-folder-open" wire:click="#" spinner class="btn-sm" />
+                <x-button icon="o-pencil-square" wire:click="edit({{ $kegiatan->id }})" spinner class="btn-sm" />
+                <x-button icon="o-trash" wire:click="delete({{ $kegiatan->id }})" spinner class="btn-sm" />
+            </div>
+            @endscope
+        </x-table>
     </x-card>
 </div>
