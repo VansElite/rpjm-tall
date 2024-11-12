@@ -169,115 +169,117 @@ new class extends Component {
 }; ?>
 
 <div>
-    <x-form wire:submit.prevent="store">
-        <x-select label="Bidang" :options="$bidangs" option-value="id" option-label="nama" wire:model.live="selectedBidang" />
-        <div class="grid grid-cols-10 gap-4 h-30">
-            <div class="col-span-8">
-                <x-select label="Program" :options="$programs" option-value="id" option-label="nama"
-                    wire:model="selectedProgram" />
-            </div>
-            <div class="justify-center col-span-2 mx-5 pt-7 ">
-                <x-button label="Program" icon="o-folder-plus" class="btn-outline" wire:click="showAddProgram"
-                    responsive />
-            </div>
-        </div>
-        {{-- Form Add Program --}}
-        <hr />
-        @if ($showProgram)
-            <div class="grid gap-4 md:grid-cols-10">
-                <div class="col-span-5">
-                    <x-input label="Nama Program" wire:model="nama_program" />
-                </div>
-                <div class="col-span-5">
-                    <x-select label="Pilih Bidang" :options="$bidangs" option-value="id" option-label="nama"
-                        wire:model.live="selectedBidang" />
-                </div>
-            </div>
-            <div class="grid gap-4 md:grid-cols-10">
+    <x-card title="Form Tambah Kegiatan" class="flex mx-3 my-3 bg-base-200 rounded-xl">
+        <x-form wire:submit.prevent="store">
+            <x-select label="Bidang" :options="$bidangs" option-value="id" option-label="nama" wire:model.live="selectedBidang" />
+            <div class="grid grid-cols-10 gap-4 h-30">
                 <div class="col-span-8">
-                    <x-input label="Cangkupan Program" wire:model="cangkupan_program" />
+                    <x-select label="Program" :options="$programs" option-value="id" option-label="nama"
+                        wire:model="selectedProgram" />
                 </div>
                 <div class="justify-center col-span-2 mx-5 pt-7 ">
-                    <x-button label="Simpan Program" icon="o-plus" class="btn-outline" wire:click="createProgram"
+                    <x-button label="Program" icon="o-folder-plus" class="btn-outline" wire:click="showAddProgram"
                         responsive />
                 </div>
             </div>
+            {{-- Form Add Program --}}
             <hr />
-        @endif
-        {{-- End Form Add Program --}}
-        <div class="grid gap-4 md:grid-cols-2">
-            <div>
-                <x-input label="Nama Kegiatan" wire:model="nama" />
+            @if ($showProgram)
+                <div class="grid gap-4 md:grid-cols-10">
+                    <div class="col-span-5">
+                        <x-input label="Nama Program" wire:model="nama_program" />
+                    </div>
+                    <div class="col-span-5">
+                        <x-select label="Pilih Bidang" :options="$bidangs" option-value="id" option-label="nama"
+                            wire:model.live="selectedBidang" />
+                    </div>
+                </div>
+                <div class="grid gap-4 md:grid-cols-10">
+                    <div class="col-span-8">
+                        <x-input label="Cangkupan Program" wire:model="cangkupan_program" />
+                    </div>
+                    <div class="justify-center col-span-2 mx-5 pt-7 ">
+                        <x-button label="Simpan Program" icon="o-plus" class="btn-outline" wire:click="createProgram"
+                            responsive />
+                    </div>
+                </div>
+                <hr />
+            @endif
+            {{-- End Form Add Program --}}
+            <div class="grid gap-4 md:grid-cols-2">
+                <div>
+                    <x-input label="Nama Kegiatan" wire:model="nama" />
+                </div>
+                <div>
+                    <x-select label="Status" :options="$statuses" option-value="value" option-label="nama"
+                        wire:model="selectedStatus" />
+                </div>
             </div>
-            <div>
-                <x-select label="Status" :options="$statuses" option-value="value" option-label="nama"
-                    wire:model="selectedStatus" />
-            </div>
-        </div>
 
-        <div class="grid gap-4 md:grid-cols-2">
-            <div>
-                <x-input label="Volume" wire:model="volume" />
+            <div class="grid gap-4 md:grid-cols-2">
+                <div>
+                    <x-input label="Volume" wire:model="volume" />
+                </div>
+                <div>
+                    <x-select label="Satuan" :options="$satuans" option-value="value" option-label="nama"
+                        wire:model="selectedSatuan" />
+                </div>
             </div>
-            <div>
-                <x-select label="Satuan" :options="$satuans" option-value="value" option-label="nama"
-                    wire:model="selectedSatuan" />
-            </div>
-        </div>
 
-        <div class="grid gap-16 my-2 md:grid-cols-6">
-            <div>
-                <x-checkbox label="Tahun 1" wire:model="tahun_1" />
+            <div class="grid gap-16 my-2 md:grid-cols-6">
+                <div>
+                    <x-checkbox label="Tahun 1" wire:model="tahun_1" />
+                </div>
+                <div>
+                    <x-checkbox label="Tahun 2" wire:model="tahun_2" />
+                </div>
+                <div>
+                    <x-checkbox label="Tahun 3" wire:model="tahun_3" />
+                </div>
+                <div>
+                    <x-checkbox label="Tahun 4" wire:model="tahun_4" />
+                </div>
+                <div>
+                    <x-checkbox label="Tahun 5" wire:model="tahun_5" />
+                </div>
+                <div>
+                    <x-checkbox label="Tahun 6" wire:model="tahun_6" />
+                </div>
             </div>
-            <div>
-                <x-checkbox label="Tahun 2" wire:model="tahun_2" />
-            </div>
-            <div>
-                <x-checkbox label="Tahun 3" wire:model="tahun_3" />
-            </div>
-            <div>
-                <x-checkbox label="Tahun 4" wire:model="tahun_4" />
-            </div>
-            <div>
-                <x-checkbox label="Tahun 5" wire:model="tahun_5" />
-            </div>
-            <div>
-                <x-checkbox label="Tahun 6" wire:model="tahun_6" />
-            </div>
-        </div>
 
-        <div class="grid gap-4 md:grid-cols-2">
-            <div>
-                <x-input label="Lokasi" wire:model="lokasi" />
+            <div class="grid gap-4 md:grid-cols-2">
+                <div>
+                    <x-input label="Lokasi" wire:model="lokasi" />
+                </div>
+                <div>
+                    <x-select label="Dusun" :options="$dusuns" option-value="id" option-label="nama"
+                        wire:model="selectedDusun" />
+                </div>
             </div>
-            <div>
-                <x-select label="Dusun" :options="$dusuns" option-value="id" option-label="nama"
-                    wire:model="selectedDusun" />
-            </div>
-        </div>
 
-        <x-menu-separator />
-        <div class="grid gap-4 md:grid-cols-2">
-            <div>
-                <x-input label="Longitude" id="longitude" value="latitude" wire:model="longitude" />
+            <x-menu-separator />
+            <div class="grid gap-4 md:grid-cols-2">
+                <div>
+                    <x-input label="Longitude" id="longitude" value="latitude" wire:model="longitude" />
+                </div>
+                <div>
+                    <x-input label="Latitude" id="latitude" value="latitude" wire:model="latitude" />
+                </div>
+                <div class="col-span-2">
+                    <div class="h-48 w-160" id='peta'></div>
+                </div>
             </div>
-            <div>
-                <x-input label="Latitude" id="latitude" value="latitude" wire:model="latitude" />
-            </div>
-            <div class="col-span-2">
-                <div class="h-48 w-160" id='peta'></div>
-            </div>
-        </div>
-        <hr />
+            <hr />
 
-        <x-textarea label="Deskripsi" wire:model="deskripsi" placeholder="Tuliskan Deskripsi Kegiatan ..."
-            hint="Max 1000 chars" rows="5" inline />
+            <x-textarea label="Deskripsi" wire:model="deskripsi" placeholder="Tuliskan Deskripsi Kegiatan ..."
+                hint="Max 1000 chars" rows="5" inline />
 
-        <x-slot:actions>
-            <x-button label="Cancel" />
-            <x-button label="Simpan" class="btn-primary" type="submit" spinner="save" />
-        </x-slot:actions>
-    </x-form>
+            <x-slot:actions>
+                <x-button label="Cancel" />
+                <x-button label="Simpan" class="btn-primary" type="submit" spinner="save" />
+            </x-slot:actions>
+        </x-form>
+    </x-card>
 </div>
 
 @script

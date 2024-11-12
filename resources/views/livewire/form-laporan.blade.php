@@ -60,7 +60,7 @@ new class extends Component {
 }; ?>
 
 <div>
-<x-card title="Form Laporan Kegiatan">
+<x-card title="Form Tambah Laporan Kegiatan" class="flex mx-3 my-3 bg-base-200 rounded-xl">
     <x-form wire:submit.prevent="store">
         <div class="grid gap-4 md:grid-cols-2">
             <div>
