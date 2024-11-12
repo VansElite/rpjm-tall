@@ -55,18 +55,6 @@ new class extends Component {
         ],
     ];
 
-    public $users = [
-        [
-            'id' => 1,
-            'name' => 'Joe',
-        ],
-        [
-            'id' => 2,
-            'name' => 'Mary',
-            'disabled' => true,
-        ],
-    ];
-
     //init data dari db
     public $bidangs;
     public $programs;
@@ -137,7 +125,6 @@ new class extends Component {
 
     public function createProgram()
     {
-        $validated = $this->validate();
         Program::create([
             'nama' => $this->nama_program,
             'id_bidang' => $this->selectedBidang,
@@ -155,13 +142,12 @@ new class extends Component {
 
     public function store()
     {
-        $validated = $this->validate();
 
         Kegiatan::create([
             'nama' => $this->nama,
             'id_program' => $this->selectedProgram,
             'status' => $this->selectedStatus,
-            'volume' => $this->nama,
+            'volume' => $this->volume,
             'satuan' => $this->selectedSatuan,
             'tahun_1' => $this->tahun_1,
             'tahun_2' => $this->tahun_2,
@@ -177,6 +163,8 @@ new class extends Component {
         ]);
 
         session()->flash('message', 'Data berhasil disimpan.');
+
+        return redirect()->route('direktori-kegiatan');
     }
 }; ?>
 
@@ -271,10 +259,10 @@ new class extends Component {
         <x-menu-separator />
         <div class="grid gap-4 md:grid-cols-2">
             <div>
-                <x-input label="Longitude" id="longitude" value="latitude" wire:model="longitude" readonly />
+                <x-input label="Longitude" id="longitude" value="latitude" wire:model="longitude" />
             </div>
             <div>
-                <x-input label="Latitude" id="latitude" value="latitude" wire:model="latitude" readonly />
+                <x-input label="Latitude" id="latitude" value="latitude" wire:model="latitude" />
             </div>
             <div class="col-span-2">
                 <div class="h-48 w-160" id='peta'></div>
