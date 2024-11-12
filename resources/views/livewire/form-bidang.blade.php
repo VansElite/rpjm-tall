@@ -1,22 +1,33 @@
 <?php
 
-use function Livewire\Volt\{state};
 use App\Models\Bidang;
+use Livewire\Volt\Component;
 
-state([
-    'nama' => '',
-]);
+new class extends Component {
 
-$save = function () {
-    Bidang::create(['nama' => $this->nama]);
-    return to_route('direktori-bidang');
-}
+    public $nama;
 
-?>
+    public function store()
+    {
 
-<x-form wire:submit="save" class="m-4">
-    <x-input label="Nama Bidang" wire:model="nama" />
-    <x-slot:actions>
-        <x-button label="Simpan" type="submit" class="btn-primary" />
-    </x-slot:actions>
-</x-form>
+        Bidang::create([
+            'nama' => $this->nama,
+        ]);
+
+        session()->flash('message', 'Data Bidang berhasil disimpan.');
+
+        return redirect()->route('direktori-bidang');
+    }
+
+}; ?>
+
+<div>
+    <x-card title="Form Tambah Bidang" class="flex mx-3 my-3 bg-base-200 rounded-xl">
+        <x-form wire:submit.prevent="store" class="m-4">
+            <x-input label="Nama Bidang" wire:model="nama" />
+            <x-slot:actions>
+                <x-button label="Simpan" type="submit" class="btn-primary" />
+            </x-slot:actions>
+        </x-form>
+    </x-card>
+</div>
