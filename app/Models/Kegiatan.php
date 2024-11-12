@@ -5,7 +5,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Kegiatan extends Model
 {
@@ -39,8 +38,8 @@ class Kegiatan extends Model
         return $this->hasMany(Laporan::class);
     }
 
-    public function dusun(): HasMany
+    public function dusun(): BelongsTo
     {
-        return $this->hasMany(Dusun::class);
+        return $this->belongsTo(Dusun::class);
     }
 }
