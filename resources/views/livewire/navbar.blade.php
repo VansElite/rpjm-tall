@@ -38,24 +38,24 @@ new class extends Component {
 
     <div id="space" class="flex-grow"></div>
 
-    <details class="dropdown">
+    <details class="dropdown w-fit">
         <summary class="m-1 btn btn-ghost">
             <x-icon name="o-plus" />
             <span>Tambah</span>
         </summary>
-        <ul class="menu dropdown-content bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
+        <ul class="menu dropdown-content bg-base-100 rounded-box z-[1] w-full p-2 shadow">
             <li><a wire:navigate href="{{ route('add-bidang') }}">Bidang</a></li>
-            <li><a wire:navigate href="/kegiatan/add">Kegiatan</a></li>
-            <li><a wire:navigate href="/laporan/add">Laporan</a></li>
+            <li><a wire:navigate href="{{ route('add-kegiatan') }}">Kegiatan</a></li>
+            <li><a wire:navigate href="{{ route('add-laporan') }}">Laporan</a></li>
         </ul>
     </details>
 
-    <details class="dropdown">
+    <details class="dropdown w-fit">
         <summary class="m-1 btn btn-ghost">
             <x-icon name="o-clipboard-document-list" />
             <span>Direktori</span>
         </summary>
-        <ul class="menu dropdown-content bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
+        <ul class="menu dropdown-content bg-base-100 rounded-box z-[1] w-full p-2 shadow">
             <li><a wire:navigate href="{{ route('direktori-bidang') }}">Bidang</a></li>
             <li><a wire:navigate href="{{ route('direktori-program') }}">Program</a></li>
             <li><a wire:navigate href="{{ route('direktori-kegiatan') }}">Kegiatan</a></li>
