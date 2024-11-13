@@ -28,6 +28,11 @@ new class extends Component {
 
     }
 
+    public function cancle()
+    {
+        return redirect()->route('direktori-program');
+    }
+
     public function save()
     {
         $this->program->update([
@@ -62,6 +67,7 @@ new class extends Component {
                     </div>
                     <div class="justify-center col-span-2 mx-5 pt-7 ">
                         <x-slot:actions>
+                            <x-button label="Cancel" wire:click="cancle" />
                             <x-button label="Simpan" type="submit" class="btn-primary" />
                         </x-slot:actions>
                     </div>

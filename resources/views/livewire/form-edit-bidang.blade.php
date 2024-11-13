@@ -4,11 +4,18 @@ use Livewire\Volt\Component;
 
 new class extends Component {
     public Bidang $bidang;
+
+    //init input data
     public $nama;
 
     public function mount()
     {
         $this->nama = $this->bidang->nama;
+    }
+
+    public function cancle()
+    {
+        return redirect()->route('direktori-bidang');
     }
 
     public function update()
@@ -28,8 +35,9 @@ new class extends Component {
 <div>
     <x-card title="Edit Bidang {{ $bidang->nama }}" class="flex mx-3 my-3 bg-base-200 rounded-xl" separator>
         <x-form wire:submit.prevent="update" class="m-4">
-            <x-input label="Nama Bidang" placeholder="{{ $bidang->nama }}" wire:model="nama"/>
+            <x-input label="Nama Bidang" wire:model="nama"/>
             <x-slot:actions>
+                <x-button label="Cancel" wire:click="cancle" />
                 <x-button label="Simpan" type="submit" class="btn-primary" />
             </x-slot:actions>
         </x-form>
