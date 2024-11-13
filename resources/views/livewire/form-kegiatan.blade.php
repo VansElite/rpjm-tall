@@ -60,8 +60,10 @@ new class extends Component {
     public $programs;
     public $dusuns;
 
-    //init variable untuk addProgram
+    //init var untuk fungsi
     public $showProgram = false;
+
+    //init variable untuk addProgram
     #[Validate('required', message: 'Jangan Kosongkan Kolom Nama')]
     public $nama_program;
     #[Validate('required', message: 'Jangan Kosongkan Kolom Nama')]
@@ -134,13 +136,13 @@ new class extends Component {
     }
 
     //Update longitude Latitude
-    public function updateCoordinates($lat, $lng)
+    public function updateCoordinates($lng, $lat)
     {
-        $this->latitude = $lat;
-        $this->longitude = $lng;
+        $this->longitude = value($lng);
+        $this->latitude = value($lat);
     }
 
-    public function store()
+    public function save()
     {
 
         Kegiatan::create([
@@ -170,7 +172,7 @@ new class extends Component {
 
 <div>
     <x-card title="Form Tambah Kegiatan" class="flex mx-3 my-3 bg-base-200 rounded-xl">
-        <x-form wire:submit.prevent="store">
+        <x-form wire:submit.prevent="save">
             <x-select label="Bidang" :options="$bidangs" option-value="id" option-label="nama" wire:model.live="selectedBidang" />
             <div class="grid grid-cols-10 gap-4 h-30">
                 <div class="col-span-8">
@@ -260,12 +262,12 @@ new class extends Component {
             <x-menu-separator />
             <div class="grid gap-4 md:grid-cols-2">
                 <div>
-                    <x-input label="Longitude" id="longitude" value="latitude" wire:model="longitude" />
+                    <x-input label="Longitude" wire:model.live="longitude" readonly/>
                 </div>
                 <div>
-                    <x-input label="Latitude" id="latitude" value="latitude" wire:model="latitude" />
+                    <x-input label="Latitude" wire:model.live="latitude" readonly/>
                 </div>
-                <div class="col-span-2">
+                <div class="w-full h-48 col-span-2">
                     <div class="h-48 w-160" id='peta'></div>
                 </div>
             </div>
@@ -303,12 +305,7 @@ new class extends Component {
         map.on('click', e => {
             console.log(`[${e.lngLat.lng}, ${e.lngLat.lat}]`);
             newCoordinateMarker.setLngLat(e.lngLat);
-
-            const lng = e.lngLat.lng;
-            const lat = e.lngLat.lat;
-
-            window.livewire.dispatch('updateCoordinates', lat, lng);
-
+            $wire.updateCoordinates(e.lngLat.lng, e.lngLat.lat);
         });
     </script>
 @endscript

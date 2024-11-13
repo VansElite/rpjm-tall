@@ -9,11 +9,15 @@ use Livewire\Volt\Component;
 
 new class extends Component {
     public $bidangs;
-    public $selectedBidang;
+    public ?int $selectedBidang;
     public $programs;
-    public $selectedProgram;
+    public ?int $selectedProgram;
     public $kegiatans;
-     #[Validate('required', message: 'Tolong Pilih Salah Satu Kegiatan')]
+
+    public $tempBidangs;
+    public $tempPrograms;
+    public $tempKegiatans;
+
     public $selectedKegiatan;
     #[Validate('required', message: 'Jangan Kosongkan Judul Laporan')]
     public $judul;
@@ -23,11 +27,33 @@ new class extends Component {
     public $deskripsi;
 
     public function mount(){
-        $this->selectedBidang = null;
-        $this->bidangs = Bidang::all();
-        $this->selectedProgram = null;
-        $this->programs = Program::all();
-        $this->kegiatans = Kegiatan::all();
+        //menambah data ke array pertama pada opsi x-select
+        $this->tempBidangs =  [
+            'id' => null,
+            'value' => null,
+            'nama' => '-- Pilih Bidang --',
+        ];
+        $this->tempPrograms = [
+            'id' => null,
+            'value' => null,
+            'nama' => '-- Pilih Program --',
+        ];
+        $this->tempKegiatans = [
+            'id' => null,
+            'value' => null,
+            'nama' => '-- Pilih Kegiatan --',
+        ];
+
+        //init untuk Opsi x-select
+        $this->bidangs = [$this->tempBidangs,
+            ...Bidang::all()->toArray()
+        ];
+        $this->programs = [$this->tempPrograms,
+            ...Program::all()->toArray()
+        ];
+        $this->kegiatans = [$this->tempKegiatans,
+            ...Kegiatan::all()->toArray()
+        ];
     }
 
     //Update Selected Bidang
@@ -42,6 +68,12 @@ new class extends Component {
     {
         // Filter data berdasarkan Program yang dipilih
         $this->kegiatans = Kegiatan::where('id_program', $programId)->get();
+        if ($this->kegiatans->count() < 2) {
+            $this->kegiatans = [$this->tempKegiatans,
+            ...Kegiatan::where('id_program', $programId)->get()];
+        } else {
+            $this->kegiatans = Kegiatan::where('id_program', $programId)->get();
+        };
     }
 
     public function store()
@@ -56,6 +88,7 @@ new class extends Component {
     ]);
 
     session()->flash('message', 'Data berhasil disimpan.');
+    return redirect()->route('direktori-laporan');
     }
 }; ?>
 
