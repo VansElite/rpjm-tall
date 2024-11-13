@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Kegiatan extends Model
 {
+    use HasFactory;
+
     public $table = 'kegiatan';
     protected $fillable = [
         'id_program',
@@ -27,19 +30,27 @@ class Kegiatan extends Model
         'latitude',
         'deskripsi',
     ];
+    protected $casts = [
+        'tahun_1' => 'boolean',
+        'tahun_2' => 'boolean',
+        'tahun_3' => 'boolean',
+        'tahun_4' => 'boolean',
+        'tahun_5' => 'boolean',
+        'tahun_6' => 'boolean',
+    ];
 
     public function program(): BelongsTo
     {
-        return $this->belongsTo(Program::class);
+        return $this->belongsTo(Program::class, 'id_program');
+    }
+
+    public function dusun(): BelongsTo
+    {
+        return $this->belongsTo(Dusun::class, 'id_dusun');
     }
 
     public function laporan(): HasMany
     {
         return $this->hasMany(Laporan::class);
-    }
-
-    public function dusun(): BelongsTo
-    {
-        return $this->belongsTo(Dusun::class);
     }
 }
