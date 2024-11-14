@@ -128,7 +128,7 @@ new class extends Component {
             wire:model.live="selectedKegiatan" />
         <div class="grid gap-4 md:grid-cols-2">
             <div>
-                <x-input label="Judul Laporan" placeholder="{{}}" wire:model="judul" />
+                <x-input label="Judul Laporan" placeholder="Masukkan Judul Laporan" wire:model="judul" />
             </div>
             <div>
                 <x-range wire:model.live.debounce="progres" min="0" max="100" step="5" label="Progres Kegiatan"
