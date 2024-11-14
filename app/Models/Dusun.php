@@ -17,6 +17,6 @@ class Dusun extends Model
 
     public function kegiatan(): HasMany
     {
-        return $this->hasMany(Kegiatan::class);
+        return $this->hasMany(Kegiatan::class,'id_dusun');
     }
 }

@@ -51,6 +51,6 @@ class Kegiatan extends Model
 
     public function laporan(): HasMany
     {
-        return $this->hasMany(Laporan::class);
+        return $this->hasMany(Laporan::class, 'id_kegiatan');
     }
 }
