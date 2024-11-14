@@ -6,7 +6,7 @@ use Livewire\Volt\Volt;
 // Users will be redirected to this route if not logged in
 Volt::route('/login', 'login')->name('login'); //login page
 
-Volt::route('/', 'index');
+Volt::route('/', 'index')->name('index');
 
 Volt::route('/bidang','direktori-bidang')->name('direktori-bidang');
 Volt::route('/bidang/add','form-bidang')->name('add-bidang');
