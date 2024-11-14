@@ -1,9 +1,10 @@
 <?php
 use App\Models\Laporan;
 use Livewire\Volt\Component;
+use Livewire\WithPagination;
 
 new class extends Component {
-    public $laporans;
+    use WithPagination;
 
     public $headers = [
         ['key' => 'id', 'label' => 'No'],
@@ -12,9 +13,11 @@ new class extends Component {
         ['key' => 'deskripsi', 'label' => 'Deskripsi'], // Masih ada kekurangan, progres ambil dari laporan
     ];
 
-    public function mount()
+    public function render(): mixed
     {
-        $this->laporans = Laporan::all();
+        return view('livewire.direktori-laporan', [
+            'laporans' => Laporan::paginate(10), // Menggunakan paginate
+        ]);
     }
 
     public function edit($id)
@@ -31,7 +34,7 @@ new class extends Component {
 
 <div>
     <x-card title="Data Laporan RPJM Tirtomulyo" class="flex mx-3 my-3 bg-base-200 rounded-xl" subtitle="Data Rencana Pembangunan Jangka Menengah Tirtomulyo" separator>
-        <x-table :headers="$headers" :rows="$laporans">
+        <x-table :headers="$headers" :rows="$laporans" with-pagination>
             {{-- Special `actions` slot --}}
                 @scope('actions', $laporan)
                 <div class="flex gap-2">
@@ -41,5 +44,8 @@ new class extends Component {
                 </div>
                 @endscope
             </x-table>
+            <div class="mt-4">
+                {{ $laporans->links('pagination::tailwind') }}
+            </div>
     </x-card>
 </div>

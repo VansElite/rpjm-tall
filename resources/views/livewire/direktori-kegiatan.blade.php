@@ -1,10 +1,12 @@
 <?php
+
 use App\Models\Kegiatan;
-use App\Models\Laporan;
 use Livewire\Volt\Component;
+use Livewire\WithPagination;
+
 
 new class extends Component {
-    public $kegiatans;
+    use WithPagination;
 
     public $statuses = [
         [
@@ -22,23 +24,20 @@ new class extends Component {
             'value' => 'direncanakan',
             'nama' => 'Direncanakan',
         ],
-        [
-            'id' => 4,
-            'value' => 'ditunda',
-            'nama' => 'Ditunda',
-        ],
     ];
 
     public $headers = [
         ['key' => 'id', 'label' => 'No'],
         ['key' => 'nama', 'label' => 'Nama Kegiatan'],
         ['key' => 'status', 'label' => 'Status'],
-        ['key' => 'progres', 'label' => 'Progres'], // Masih ada kekurangan, progres ambil dari laporan
+        ['key' => 'laporan_progres', 'label' => 'Progres'],
     ];
 
-    public function mount()
+    public function render(): mixed
     {
-        $this->kegiatans = Kegiatan::all();
+        return view('livewire.direktori-kegiatan', [
+            'kegiatans' => Kegiatan::withAggregate('laporan', 'progres')->paginate(10), // Menggunakan paginate
+        ]);
     }
 
     public function edit($id)
@@ -56,11 +55,11 @@ new class extends Component {
 
 <div>
     <x-card title="Data Kegiatan RPJM Tirtomulyo" class="flex mx-3 my-3 bg-base-200 rounded-xl" subtitle="Data Rencana Pembangunan Jangka Menengah Tirtomulyo" separator>
-        <x-table :headers="$headers" :rows="$kegiatans">
+        <x-table :headers="$headers" :rows="$kegiatans" with-pagination>
         {{-- Special `actions` slot --}}
             @scope('actions', $kegiatan)
             <div class="flex gap-2">
-                <x-button icon="o-folder-open" wire:click="#" spinner class="btn-sm" />
+                <x-button icon="o-folder-open" wire:click="#" spinner class="btn-sm"/>
                 <x-button icon="o-pencil-square" wire:click="edit({{ $kegiatan->id }})" spinner class="btn-sm" />
                 <x-button icon="o-trash" wire:click="delete({{ $kegiatan->id }})" spinner class="btn-sm" />
             </div>
