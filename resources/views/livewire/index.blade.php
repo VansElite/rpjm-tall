@@ -1,42 +1,55 @@
 <?php
 
 use App\Models\Bidang;
+use App\Models\Kegiatan;
+use App\Models\Laporan;
 use Livewire\Volt\Component;
 
 new class extends Component {
-
+    public Kegiatan $kegiatan;
+    Public Laporan $laporan;
     public $kegiatans;
 
     public string $search;
 
     public $headers = [
-        ['key' => 'id', 'label' => 'No'],
-        ['key' => 'nama', 'label' => 'Nama Kegiatan'],
-         // Masih ada kekurangan, dusun ambil dari Dusun
-         // Masih ada kekurangan, progres ambil dari laporan
+        ['key' => 'kegiatan.id', 'label' => 'No'],
+        ['key' => 'kegiatan.nama', 'label' => 'Nama Kegiatan'],
+        ['key' => 'kegiatan.dusun.nama', 'label' => 'Dusun'],
+        ['key' => 'progres', 'label' => 'Progres'],
     ];
 
     public function mount()
     {
         $this->search = '';
 
-        $this->kegiatans = Bidang::all();
+    }
+
+    public function mounted()
+    {
+
+    }
+
+    public function boot()
+    {
+        $this->kegiatans = Laporan::with(['kegiatan','kegiatan.dusun'])->get(); //Sementara pake laporan dulu
+
     }
 
     public function updatedSearch($namaKegiatan)
     {
-        $this->kegiatans= Bidang::where('nama',$namaKegiatan)->get();
+        $this->kegiatans= Laporan::with(['kegiatan'=>function ($querry) {$querry->where('nama',$namaKegiatan);},'kegiatan.dusun'])->get();
     }
 
 
 }; ?>
 
 <div class="grid h-full grid-cols-12">
-    <div class="grid col-span-3 grid-rows-5">
+    <div class="grid h-full col-span-3 grid-rows-5">
 
-        <div class="flex-auto row-span-1 gap-1 grid-row-2">
-            <input type="text" wire:model.live="search" class="flex-auto w-auto col-row-1">
-            <x-tabs wire:model="selectedTab" class="flex justify-center flex-auto col-row-1">
+        <div class="flex-auto row-span-1 gap-1 md:grid-row-2">
+            <input type="text" placeholder="ketik nama kegiatan" wire:model='search' class="w-4/5 row-span-1 mx-5">
+            <x-tabs wire:model="selectedTab" class="flex justify-center flex-auto row-span-1">
                 <x-tab name="users-tab" label="Users" icon="o-users">
                     <div>Users</div>
                 </x-tab>
@@ -51,13 +64,17 @@ new class extends Component {
 
         <div class="row-span-3">
             <x-table :headers="$headers" :rows="$kegiatans">
-
+                @scope('actions', $kegiatan)
+                <div class="flex gap-2">
+                    <x-button icon="o-folder-open" wire:click="#" spinner class="btn-sm" />
+                </div>
+                @endscope
             </x-table>
         </div>
 
         <div class="grid grid-cols-3 row-span-1 gap-1">
             <div class="flex-auto col-span-1">
-                <x-dropdown label="Filter 1" no-x-anchor>
+                <x-dropdown label="Filter 1" class="btn-outline" no-x-anchor>
                     <x-menu-item title="Hey" />
                     <x-menu-item title="How are you?" />
                 </x-dropdown>
@@ -74,12 +91,26 @@ new class extends Component {
                     <x-menu-item title="How are you?" />
                 </x-dropdown>
             </div>
-
         </div>
 
     </div>
+    {{-- @if ($showProgram) --}}
+    <div class="grid h-full col-span-4 md:grid-row-7">
+        <x-card title="Detail kegiatan X" class="row-span-4 mx-2 my-2 h-fit bg-base-200" separator>
 
-    <div class="w-full h-full col-span-9" id='peta'></div>
+        </x-card>
+        <x-card title="Laporan kegiatan X" class="row-span-3 mx-2 my-2 h-fit w-8/9 bg-base-200" separator>
+            <div>
+                List-item
+            </div>
+            <x-slot:actions>
+                <x-button label="Ok" class="btn-primary" />
+            </x-slot:actions>
+        </x-card>
+    </div>
+
+    <div class="w-full h-full col-span-5" id='peta'></div>
+    {{-- @endif --}}
 </div>
 
 @script
