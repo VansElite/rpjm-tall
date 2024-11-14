@@ -6,8 +6,6 @@ use Livewire\Volt\Component;
 
 new class extends Component {
     use WithPagination;
-    public $programs;
-    public int $perPage = 3;
 
     public $headers = [
         ['key' => 'id', 'label' => 'No', 'class' => 'w-1'],
@@ -15,11 +13,12 @@ new class extends Component {
         ['key' => 'cangkupan_program', 'label' => 'Cangkupan Program'],
     ];
 
-    public function mount()
+    public function render(): mixed
     {
-        $this->programs = Program::all();
+        return view('livewire.direktori-program', [
+            'programs' => Program::paginate(10), // Menggunakan paginate
+        ]);
     }
-
     // public function updatedperPage($pageValue)
     // {
     //     $this->programs=Program::paginate($this->$pageValue)->get();
@@ -40,7 +39,7 @@ new class extends Component {
 <div>
     <x-card title="Data Program RPJM Tirtomulyo" class="flex mx-3 my-3 bg-base-200 rounded-xl" subtitle="Data Rencana Pembangunan Jangka Menengah Tirtomulyo"
         separator>
-        <x-table :headers="$headers" :rows="$programs">
+        <x-table :headers="$headers" :rows="$programs" with-pagination>
             {{-- Special `actions` slot --}}
             @scope('actions', $program)
             <div class="flex gap-2">
