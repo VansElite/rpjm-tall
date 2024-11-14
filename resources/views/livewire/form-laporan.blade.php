@@ -17,6 +17,7 @@ new class extends Component {
     public $tempBidangs;
     public $tempPrograms;
     public $tempKegiatans;
+    public $kegiatan;
 
     public $selectedKegiatan;
     #[Validate('required', message: 'Jangan Kosongkan Judul Laporan')]
@@ -60,24 +61,23 @@ new class extends Component {
     public function updatedSelectedBidang($bidangId)
     {
         // Filter data berdasarkan bidang yang dipilih
-        $this->programs = Program::where('id_bidang', $bidangId)->get();
+        $this->programs = [$this->tempPrograms,
+            ...Program::where('id_bidang', $bidangId)->get()->toArray()
+        ];
     }
 
     //Update Selected Program
     public function updatedSelectedProgram($programId)
     {
         // Filter data berdasarkan Program yang dipilih
-        $this->kegiatans = Kegiatan::where('id_program', $programId)->get();
-        if ($this->kegiatans->count() < 2) {
-            $this->kegiatans = [$this->tempKegiatans,
+        $this->kegiatans = [$this->tempKegiatans,
             ...Kegiatan::where('id_program', $programId)->get()];
-        } else {
-            $this->kegiatans = Kegiatan::where('id_program', $programId)->get();
-        };
     }
 
     public function store()
     {
+        $this->kegiatan = Kegiatan::find($this->selectedKegiatan);
+
         $validated = $this->validate();
 
         Laporan::create([
@@ -86,10 +86,30 @@ new class extends Component {
         'progres' => $this->progres,
         'deskripsi' => $this->deskripsi,
     ]);
+    if ($this->progres = 0) {
+        $this->kegiatan->update([
+            'status' => 'direncanakan',
+        ]);
+        $this->kegiatan->save();
+    }elseif ($this->progres = 100) {
+        $this->kegiatan->update([
+            'status' => 'selesai',
+        ]);
+        $this->kegiatan->save();
+    }else {
+            if ($this->kegiatan->status != 'sedangBerjalan') {
+            $this->kegiatan->update([
+                'status' => 'sedangBerjalan',
+            ]);
+            $this->kegiatan->save();
+        }
+    };
 
     session()->flash('message', 'Data berhasil disimpan.');
     return redirect()->route('direktori-laporan');
     }
+
+
 }; ?>
 
 <div>
@@ -108,10 +128,10 @@ new class extends Component {
             wire:model.live="selectedKegiatan" />
         <div class="grid gap-4 md:grid-cols-2">
             <div>
-                <x-input label="Judul Laporan" wire:model="judul" />
+                <x-input label="Judul Laporan" placeholder="{{}}" wire:model="judul" />
             </div>
             <div>
-                <x-range wire:model.live.debounce="progres" min="5" max="100" step="5" label="Progres Kegiatan"
+                <x-range wire:model.live.debounce="progres" min="0" max="100" step="5" label="Progres Kegiatan"
                     hint="Greater than 30." class="range-accent" />
             </div>
         </div>

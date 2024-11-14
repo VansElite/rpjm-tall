@@ -9,11 +9,17 @@ use Livewire\Volt\Component;
 new class extends Component {
     //init Data
     public Laporan $laporan;
+    public $kegiatan;
 
     //init Opsi x-select
     public $bidangs;
     public $programs;
     public $kegiatans;
+
+    //init val default x-select
+    public $tempBidangs;
+    public $tempPrograms;
+    public $tempKegiatans;
 
     //init value x-select
     public $selectedBidang;
@@ -27,10 +33,34 @@ new class extends Component {
 
     public function mount()
     {
-        // Data untuk Opsi x-select
-        $this->bidangs = Bidang::all();
-        $this->programs = Program::all();
-        $this->kegiatans = Kegiatan::all();
+        //menambah data ke array pertama pada opsi x-select
+        $this->tempBidangs =  [
+            'id' => null,
+            'value' => null,
+            'nama' => '-- Pilih Bidang --',
+        ];
+        $this->tempPrograms = [
+            'id' => null,
+            'value' => null,
+            'nama' => '-- Pilih Program --',
+        ];
+        $this->tempKegiatans = [
+            'id' => null,
+            'value' => null,
+            'nama' => '-- Pilih Kegiatan --',
+        ];
+
+
+        //init untuk Opsi x-select
+        $this->bidangs = [$this->tempBidangs,
+            ...Bidang::all()->toArray()
+        ];
+        $this->programs = [$this->tempPrograms,
+            ...Program::all()->toArray()
+        ];
+        $this->kegiatans = [$this->tempKegiatans,
+            ...Kegiatan::all()->toArray()
+        ];
 
         // data untuk init value model x-select
         $this->selectedBidang = $this->laporan->kegiatan->program->id_bidang;
@@ -45,17 +75,32 @@ new class extends Component {
 
     }
 
+    public function mounted()
+    {
+        $this->updateSelectedBidang($this->selectedBidang);
+        $this->updateSelectedProgram($this->selectedProgram);
+    }
+
+
     public function updatedSelectedBidang($bidangId)
     {
-        // Filter data berdasarkan bidang yang dipilih
-        $this->programs = Program::where('id_bidang', $bidangId)->get();
+         // Filter data berdasarkan bidang yang dipilih
+         $this->programs = [$this->tempPrograms,
+            ...Program::where('id_bidang', $bidangId)->get()
+        ];
     }
 
     //Update Selected Program
     public function updatedSelectedProgram($programId)
     {
         // Filter data berdasarkan Program yang dipilih
-        $this->kegiatans = Kegiatan::where('id_program', $programId)->get();
+        $this->kegiatans = [$this->tempKegiatans,
+            ...Kegiatan::where('id_program', $programId)->get()];
+    }
+
+    public function cancle()
+    {
+        return redirect()->route('direktori-laporan');
     }
 
     public function save()
@@ -66,6 +111,17 @@ new class extends Component {
             'progres' => $this->progres,
             'deskripsi' => $this->deskripsi,
         ]);
+        if ($this->progres < 30) {
+            $this->kegiatan = Kegiatan::find($this->selectedKegiatan);
+            $this->kegiatan->update([
+                'status' => 'sedangBerjalan',
+            ]);
+        }elseif ($this->progres = 100) {
+            $this->kegiatan = Kegiatan::find($this->selectedKegiatan);
+            $this->kegiatan->update([
+                'status' => 'selesai',
+            ]);
+        };
 
         session()->flash('message', 'Data laporan berhasil diupdate.');
         // Kembali ke halaman daftar kegiatan atau halaman lain yang sesuai
@@ -101,7 +157,7 @@ new class extends Component {
                 hint="Max 1000 chars" rows="5" inline />
 
             <x-slot:actions>
-                <x-button label="Cancel" />
+                <x-button label="Cancel" wire:click="cancle"/>
                 <x-button label="Simpan" class="btn-primary" type="submit" spinner="save" />
             </x-slot:actions>
         </x-form>

@@ -11,6 +11,11 @@ use Livewire\Volt\Component;
 new class extends Component {
     public $statuses = [
         [
+            'id' => null,
+            'value' => null,
+            'nama' => '-- Pilih Status --',
+        ],
+        [
             'id' => 1,
             'value' => 'selesai',
             'nama' => 'Selesai',
@@ -25,14 +30,14 @@ new class extends Component {
             'value' => 'direncanakan',
             'nama' => 'Direncanakan',
         ],
-        [
-            'id' => 4,
-            'value' => 'ditunda',
-            'nama' => 'Ditunda',
-        ],
     ];
 
     public $satuans = [
+        [
+            'id' => null,
+            'value' => null,
+            'nama' => '-- Pilih Satuan --',
+        ],
         [
             'id' => 1,
             'value' => 'meter',
@@ -59,6 +64,11 @@ new class extends Component {
     public $bidangs;
     public $programs;
     public $dusuns;
+
+    //init Opsi default x-select
+    public $tempBidangs;
+    public $tempPrograms;
+    public $tempDusuns;
 
     //init var untuk fungsi
     public $showProgram = false;
@@ -104,20 +114,44 @@ new class extends Component {
     //Inisialisasi $ yang diperlukan dalam logic
     public function mount()
     {
+
         $this->selectedBidang = null;
 
-        $this->bidangs = Bidang::all();
+        //menambah data ke array pertama pada opsi x-select
+        $this->tempBidangs =  [
+            'id' => null,
+            'value' => null,
+            'nama' => '-- Pilih Bidang --',
+        ];
+        $this->tempPrograms = [
+            'id' => null,
+            'value' => null,
+            'nama' => '-- Pilih Program --',
+        ];
+        $this->tempDusuns = [
+            'id' => null,
+            'value' => null,
+            'nama' => '-- Pilih Dusun --',
+        ];
 
-        //where('id_bidang')
-        $this->programs = Program::all();
+        $this->bidangs = [$this->tempBidangs,
+            ...Bidang::all()->toArray()
+        ];
+        $this->programs = [$this->tempPrograms,
+            ...Program::all()->toArray()
+        ];
+        $this->dusuns = [$this->tempDusuns,
+            ...Dusun::all()->toArray()
+        ];
 
-        $this->dusuns = Dusun::all();
     }
     //Update Selected Bidang
     public function updatedSelectedBidang($bidangId)
     {
         // Filter data berdasarkan bidang yang dipilih
-        $this->programs = Program::where('id_bidang', $bidangId)->get();
+        $this->programs = [$this->tempPrograms,
+            ...Program::where('id_bidang', $bidangId)->get()->toArray()
+        ];
     }
 
     public function showAddProgram()
@@ -136,7 +170,7 @@ new class extends Component {
     }
 
     //Update longitude Latitude
-    public function updateCoordinates($lng, $lat)
+    public function setCoordinates($lng, $lat)
     {
         $this->longitude = value($lng);
         $this->latitude = value($lat);
@@ -144,6 +178,7 @@ new class extends Component {
 
     public function save()
     {
+        $this->validate();
 
         Kegiatan::create([
             'nama' => $this->nama,
@@ -267,7 +302,7 @@ new class extends Component {
                 <div>
                     <x-input label="Latitude" wire:model.live="latitude" readonly/>
                 </div>
-                <div class="w-full h-48 col-span-2">
+                <div wire:ignore class="w-full h-48 col-span-2">
                     <div class="h-48 w-160" id='peta'></div>
                 </div>
             </div>
@@ -305,7 +340,7 @@ new class extends Component {
         map.on('click', e => {
             console.log(`[${e.lngLat.lng}, ${e.lngLat.lat}]`);
             newCoordinateMarker.setLngLat(e.lngLat);
-            $wire.updateCoordinates(e.lngLat.lng, e.lngLat.lat);
+            $wire.setCoordinates(e.lngLat.lng, e.lngLat.lat);
         });
     </script>
 @endscript

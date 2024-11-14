@@ -9,7 +9,8 @@ new class extends Component {
 
     //init variable untuk referensi x-select
     public $bidangs;
-
+    //init val default x-select
+    public $tempBidangs;
     //init variable program
     public $nama;
     public $selectedBidang;
@@ -17,7 +18,17 @@ new class extends Component {
 
     public function mount()
     {
-        $this->bidangs = Bidang::all();
+        //menambah data ke array pertama pada opsi x-select
+        $this->tempBidangs =  [
+            'id' => null,
+            'value' => null,
+            'nama' => '-- Pilih Bidang --',
+        ];
+
+        //init untuk Opsi x-select
+        $this->bidangs = [$this->tempBidangs,
+            ...Bidang::all()->toArray()
+        ];
 
         // Inisialisasi selectedBidang dengan ID bidang yang akan diedit
         $this->selectedBidang = $this->program->id_bidang;

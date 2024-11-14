@@ -12,6 +12,8 @@ new class extends Component {
     //init Data
     public Kegiatan $kegiatan;
 
+    //init data untuk Alphinejs
+
     //init Opsi x-select
     public $bidangs;
     public $programs;
@@ -19,8 +21,13 @@ new class extends Component {
     public $statuses;
     public $satuans;
 
+    //init Opsi default x-select
+    public $tempBidangs;
+    public $tempPrograms;
+    public $tempDusuns;
 
     //init input data
+    public $namaBidang;
     public $selectedBidang;
     public $selectedProgram;
     public $nama;
@@ -41,11 +48,38 @@ new class extends Component {
 
     public function mount()
     {
+        //menambah data ke array pertama pada opsi x-select
+        $this->tempBidangs =  [
+            'id' => null,
+            'value' => null,
+            'nama' => '-- Pilih Bidang --',
+        ];
+        $this->tempPrograms = [
+            'id' => null,
+            'value' => null,
+            'nama' => '-- Pilih Program --',
+        ];
+        $this->tempDusuns = [
+            'id' => null,
+            'value' => null,
+            'nama' => '-- Pilih Dusun --',
+        ];
+
         // Data untuk Opsi x-select
-        $this->bidangs = Bidang::all();
-        $this->programs = Program::all();
-        $this->dusuns = Dusun::all();
+        $this->bidangs = [$this->tempBidangs,
+            ...Bidang::all()->toArray()
+        ];
+        $this->programs = [$this->tempPrograms,
+            ...Program::all()->toArray()
+        ];
+        $this->dusuns = [$this->tempDusuns,
+            ...Dusun::all()->toArray()];
         $this->statuses = [
+            [
+                'id' => null,
+                'value' => null,
+                'nama' => '-- Pilih Status --',
+            ],
             [
                 'id' => 1,
                 'value' => 'selesai',
@@ -61,13 +95,13 @@ new class extends Component {
                 'value' => 'direncanakan',
                 'nama' => 'Direncanakan',
             ],
-            [
-                'id' => 4,
-                'value' => 'ditunda',
-                'nama' => 'Ditunda',
-            ],
         ];
         $this->satuans = [
+            [
+                'id' => null,
+                'value' => null,
+                'nama' => '-- Pilih Satuan --',
+            ],
             [
                 'id' => 1,
                 'value' => 'meter',
@@ -109,8 +143,8 @@ new class extends Component {
                 'nama' => 'Orang',
             ],
         ];
-
-        // data untuk init value model x-select
+        // init prop component untuk map
+        $this->namaBidang = $this->kegiatan->program->bidang->nama;
 
         // Isi nilai properti component dengan data kegiatan
         $this->selectedBidang = $this->kegiatan->program->id_bidang;
@@ -137,6 +171,13 @@ new class extends Component {
     {
         // Filter data berdasarkan bidang yang dipilih
         $this->programs = Program::where('id_bidang', $bidangId)->get();
+    }
+
+    //Update longitude Latitude
+    public function setCoordinates($lng, $lat)
+    {
+        $this->longitude = value($lng);
+        $this->latitude = value($lat);
     }
 
     public function cancle()
@@ -169,8 +210,6 @@ new class extends Component {
         // Kembali ke halaman daftar kegiatan atau halaman lain yang sesuai
         return redirect()->route('direktori-kegiatan');
     }
-
-
 }; ?>
 
 <div>
@@ -249,7 +288,7 @@ new class extends Component {
                     {{-- Show data latitude dari Alphine Js --}}
                     <x-input label="Latitude" wire:model="latitude" />
                 </div>
-                <div class="col-span-2">
+                <div wire:ignore class="col-span-2">
                     <div class="h-48 w-160" id='peta'></div>
                 </div>
             </div>
@@ -265,3 +304,55 @@ new class extends Component {
         </x-form>
     </x-card>
 </div>
+
+@script
+    <script>
+        mapboxgl.accessToken =
+            'pk.eyJ1IjoidmFuc2VsaXRlMjEiLCJhIjoiY20yeWd2dDZyMDB3MjJtc2piZjE1ZDk0OSJ9.yDmaTMSvuPWK-iDhvldKWg';
+
+        const map = new mapboxgl.Map({
+            container: 'peta', // container ID
+            style: 'mapbox://styles/mapbox/streets-v12', // style URL
+            center: [110.299322, -7.9701668], // starting position [lng, lat]
+            zoom: 13, // starting zoom
+        });
+
+        console.log($wire.get('namaBidang'));
+
+        const createMarker = (coordinate, map, color, title) =>
+            new mapboxgl.Marker({
+                color: color,
+                draggable: true
+            })
+            .setPopup(new mapboxgl.Popup().setText(title))
+            .setLngLat(coordinate)
+            .addTo(map)
+
+        const warnaBidang = {
+            'Pendidikan': '#40e0d0',
+            'Kesehatan': '#b4c6d0',
+            'Penataan Ruang': '#4a8bad',
+            'Kawasan Pemukiman': '#ffff00',
+            'Lingkungan Hidup': '#00ff00',
+            'Perhubungan dan Infokom': '#e23a08',
+            'Pariwisata': '#492971',
+            'Default': '#42f545',
+        }
+
+        const kegiatanMarker = createMarker(
+            [$wire.get('longitude'),$wire.get('latitude')],
+            map,
+            warnaBidang[$wire.get('namaBidang')],
+            $wire.get('nama')
+        )
+
+        kegiatanMarker.on('dragend', (eventStatus) => {
+            const marker = eventStatus.target
+            const coordinate = marker.getLngLat()
+            const longitude = coordinate.lng
+            const latitude = coordinate.lat
+            $wire.setCoordinates(longitude,latitude)
+        })
+
+    </script>
+@endscript
