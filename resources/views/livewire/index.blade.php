@@ -4,14 +4,17 @@ use App\Models\Kegiatan;
 use Livewire\Volt\Component;
 use Livewire\WithPagination;
 
-new class extends Component {
+new class extends Component
+{
     use WithPagination;
 
     public string $search;
-    public bool $showDetail = false;
-    public ?Kegiatan $selectedKegiatan = null; // Properti untuk menyimpan kegiatan yang dipilih
-    public $detailKegiatan = [];
 
+    public bool $showDetail = false;
+
+    public ?Kegiatan $selectedKegiatan = null; // Properti untuk menyimpan kegiatan yang dipilih
+
+    public $detailKegiatan = [];
 
     public $headers = [
         ['key' => 'nama', 'label' => 'Nama Kegiatan', 'class' => 'text-center w-1/4'],
@@ -19,12 +22,11 @@ new class extends Component {
         ['key' => 'latest_progres', 'label' => 'Progres', 'class' => 'text-center w-1/6'],
     ];
 
-
     public function render(): mixed
     {
         // $this->kegiatans = Laporan::with(['kegiatan','kegiatan.dusun'])->get();
 
-        $kegiatans = Kegiatan::withAggregate('dusun','nama')->withAggregate('laporan', 'progres')
+        $kegiatans = Kegiatan::withAggregate('dusun', 'nama')->withAggregate('laporan', 'progres')
             ->with('latestProgress')
             ->paginate(5);
 
@@ -43,12 +45,12 @@ new class extends Component {
     {
         $this->selectedKegiatan = Kegiatan::with(['dusun', 'laporan'])->find($id);
         $this->setupDetailKegiatan();
-        $this->showDetail = !$this->showDetail;
+        $this->showDetail = ! $this->showDetail;
     }
 
     public function getShowDetailProperty()
     {
-        return !is_null($this->selectedKegiatan);
+        return ! is_null($this->selectedKegiatan);
     }
 
     public function setupDetailKegiatan()
@@ -61,8 +63,8 @@ new class extends Component {
             [
                 'name' => 'Progress',
                 'data' => $this->selectedKegiatan->laporan->isNotEmpty()
-                    ? $this->selectedKegiatan->laporan->last()->progres . "%"
-                    : "0%"
+                    ? $this->selectedKegiatan->laporan->last()->progres.'%'
+                    : '0%',
             ],
             [
                 'name' => 'Bidang',
@@ -74,33 +76,31 @@ new class extends Component {
             ],
             [
                 'name' => 'Volume',
-                'data' => $this->selectedKegiatan->volume . " " . $this->selectedKegiatan->satuan,
+                'data' => $this->selectedKegiatan->volume.' '.$this->selectedKegiatan->satuan,
             ],
             [
                 'name' => 'Tahun',
-                'data' =>
-                    ($this->selectedKegiatan->tahun_1 ? "1, " : "")
-                    . ($this->selectedKegiatan->tahun_2 ? "2, " : "")
-                    . ($this->selectedKegiatan->tahun_3 ? "3, " : "")
-                    . ($this->selectedKegiatan->tahun_4 ? "4, " : "")
-                    . ($this->selectedKegiatan->tahun_5 ? "5, " : "")
-                    . ($this->selectedKegiatan->tahun_6 ? "6" : ""),
+                'data' => ($this->selectedKegiatan->tahun_1 ? '1, ' : '')
+                    .($this->selectedKegiatan->tahun_2 ? '2, ' : '')
+                    .($this->selectedKegiatan->tahun_3 ? '3, ' : '')
+                    .($this->selectedKegiatan->tahun_4 ? '4, ' : '')
+                    .($this->selectedKegiatan->tahun_5 ? '5, ' : '')
+                    .($this->selectedKegiatan->tahun_6 ? '6' : ''),
             ],
             [
                 'name' => 'Lokasi',
-                'data' => $this->selectedKegiatan->lokasi
+                'data' => $this->selectedKegiatan->lokasi,
             ],
             [
                 'name' => 'Koordinat',
-                'data' => $this->selectedKegiatan->latitude . ", " . $this->selectedKegiatan->longitude
+                'data' => $this->selectedKegiatan->latitude.', '.$this->selectedKegiatan->longitude,
             ],
             [
                 'name' => 'Deskripsi',
-                'data' => $this->selectedKegiatan->deskripsi
+                'data' => $this->selectedKegiatan->deskripsi,
             ],
         ];
     }
-
 }; ?>
 
 <div class="grid h-full grid-cols-12 gap-4">
