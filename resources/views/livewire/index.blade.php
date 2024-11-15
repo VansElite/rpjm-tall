@@ -23,7 +23,7 @@ new class extends Component {
     {
         // $this->kegiatans = Laporan::with(['kegiatan','kegiatan.dusun'])->get();
 
-        $kegiatans = Kegiatan::withAggregate('laporan', 'progres')
+        $kegiatans = Kegiatan::withAggregate('dusun','nama')->withAggregate('laporan', 'progres')
             ->with('latestProgress')
             ->paginate(10);
 
