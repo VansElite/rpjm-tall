@@ -15,7 +15,7 @@ new class extends Component {
     public $headers = [
         ['key' => 'nama', 'label' => 'Nama Kegiatan', 'class' => 'text-center w-1/4'],
         ['key' => 'dusun_nama', 'label' => 'Dusun', 'class' => 'text-center w-1/6'],
-        ['key' => 'laporan_progres', 'label' => 'Progres', 'class' => 'text-center w-1/6'],
+        ['key' => 'latest_progres', 'label' => 'Progres', 'class' => 'text-center w-1/6'],
     ];
 
 
@@ -23,10 +23,17 @@ new class extends Component {
     {
         // $this->kegiatans = Laporan::with(['kegiatan','kegiatan.dusun'])->get();
 
+        $kegiatans = Kegiatan::withAggregate('laporan', 'progres')
+            ->with('latestProgress')
+            ->paginate(10);
+
+        // Menambahkan progres terakhir ke dalam array headers untuk setiap kegiatan
+        foreach ($kegiatans as $kegiatan) {
+            $kegiatan->latest_progres = $kegiatan->latestProgress->progres ?? '0'; // Nilai default 0 jika tidak ada laporan
+        }
+
         return view('livewire.index', [
-            'kegiatans' => Kegiatan::withAggregate('laporan','progres')
-            ->withAggregate('dusun','nama')
-            ->paginate(5), // Menggunakan paginate
+            'kegiatans' => $kegiatans,
         ]);
     }
 
@@ -54,8 +61,8 @@ new class extends Component {
         <x-card class="w-full row-span-3 text-xs" title="Daftar Kegiatan" style="padding: 0.25rem;">
             <div class="overflow-x-auto">
                 <x-table :headers="$headers" :rows="$kegiatans" class="w-full p-1 text-xs">
-                    @scope('cell_laporan_progres', $kegiatan)
-                    <p>{{ $kegiatans->laporan_progres ?? '0' }}%</p>
+                    @scope('cell_latest_progres', $kegiatans)
+                    <p>{{ $kegiatans->latest_progres ?? '0' }}%</p>
                     @endscope
                     @scope('actions', $kegiatan)
                     <x-button icon="o-folder-open" wire:click="selectKegiatan({{ $kegiatan->id }})" spinner
@@ -83,7 +90,7 @@ new class extends Component {
     </div>
     <!-- Bagian Card (4 dari 12 kolom), ditampilkan berdasarkan showDetail -->
     @if ($showDetail)
-    <div class="col-span-4 space-y-4">
+    <div class="col-span-4 space-y-2">
         <!-- Detail Kegiatan -->
         <x-card class="w-full h-80 bg-base-200" separator>
             <x-slot name="title">
@@ -92,23 +99,30 @@ new class extends Component {
             <p>Status {{ $selectedKegiatan->status }}</p>
             <p>Lokasi {{ $selectedKegiatan->dusun->nama ?? '-' }}</p>
             <p>Tahun Pelaksanaan</p>
-            <p>Progres: <x-progress-radial value="{{ $selectedKegiatan->laporan_progres ?? '0' }}" /></p>
+            <p>Progres:
+                @if ($selectedKegiatan->laporan->isNotEmpty())
+                <x-progress-radial value="{{ $selectedKegiatan->laporan->last()->progres ?? '0' }}" />
+                @else
+                <span>Belum ada laporan</span>
+                @endif
+            </p>
             <menu-separator/>
             <p>{{ $selectedKegiatan->deskripsi }}</p>
         </x-card>
 
         <!-- Laporan Kegiatan -->
         <x-card class="w-full h-80 bg-base-200" separator>
-            <x-slot name="title">
-                <h2 class="text-sm font-bold">Laporan Kegiatan {{ $selectedKegiatan->nama }}</h2>
-                <x-button icon="o-plus" class="btn-square btn-sm" />
+            <x-slot name="title" class="grid grid-cols-12 gap-1">
+                <h2 class="col-span-11 text-sm font-bold h-fit">Laporan Kegiatan {{ $selectedKegiatan->nama }}</h2>
+                <x-button icon="o-plus" class="col-span-1 ml-2 justify-content-center h-fit btn-square btn-xs" />
             </x-slot>
-            <div class="relative overflow-y-auto text-sm" style="max-height: calc(100% - 3rem);">
+            <div class="relative mb-1 overflow-y-auto text-sm max-h-60">
                 @foreach ($selectedKegiatan->laporan as $laporan)
                 <x-timeline-item
                     title="{{ $laporan->judul }}"
                     subtitle="{{ $laporan->created_at->format('d M Y') }}"
-                    description="{{ $laporan->deskripsi }}" />
+                    description="{{ $laporan->deskripsi }}"
+                    />
                 @endforeach
             </div>
         </x-card>
