@@ -71,6 +71,10 @@ new class extends Component
                 'data' => $this->selectedKegiatan->program->bidang->nama,
             ],
             [
+                'name' => 'Program',
+                'data' => $this->selectedKegiatan->program->nama,
+            ],
+            [
                 'name' => 'Dusun',
                 'data' => $this->selectedKegiatan->dusun->nama,
             ],
@@ -167,7 +171,11 @@ new class extends Component
         <x-card class="w-full h-80 bg-base-200" separator>
             <x-slot name="title" class="grid grid-cols-12 gap-1">
                 <h2 class="col-span-11 text-sm font-bold h-fit">Laporan Kegiatan {{ $selectedKegiatan->nama }}</h2>
-                <x-button icon="o-plus" class="col-span-1 ml-2 justify-content-center h-fit btn-square btn-xs" />
+                <x-button icon="o-plus" link="{{ route('add-laporan', [
+                    'selectedBidang' => $selectedKegiatan->program->bidang->id,
+                    'selectedProgram' => $selectedKegiatan->program->id,
+                    'selectedKegiatan' => $selectedKegiatan->id,
+                ]) }}" class="col-span-1 ml-2 justify-content-center h-fit btn-square btn-xs" />
             </x-slot>
             <div class="relative mb-1 overflow-y-auto text-sm max-h-60">
                 @foreach ($selectedKegiatan->laporan as $laporan)

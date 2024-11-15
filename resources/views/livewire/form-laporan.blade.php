@@ -27,7 +27,14 @@ new class extends Component {
     #[Validate('required', message: 'Jangan Kosongkan Deskripsi Laporan')]
     public $deskripsi;
 
+    protected $queryString = [
+        'selectedBidang' => ['except' => null],
+        'selectedProgram' => ['except' => null],
+        'selectedKegiatan' => ['except' => null],
+    ];
+
     public function mount(){
+
         //menambah data ke array pertama pada opsi x-select
         $this->tempBidangs =  [
             'id' => null,
