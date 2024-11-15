@@ -4,6 +4,24 @@ use App\Models\Kegiatan;
 use Livewire\Volt\Component;
 use Livewire\WithPagination;
 
+$pseudoCodeLogic = "
+
+params = readParams()
+
+getRows(params)
+getCoords(params)
+
+on.paramChange {
+    getRows(params)
+    drawCoords(params)
+}
+
+on.showDetail (kegiatan) {
+    drawCoords(kegiatan)
+}
+
+";
+
 new class extends Component
 {
     use WithPagination;
@@ -21,6 +39,14 @@ new class extends Component
         ['key' => 'dusun_nama', 'label' => 'Dusun', 'class' => 'text-center w-1/6'],
         ['key' => 'latest_progres', 'label' => 'Progres', 'class' => 'text-center w-1/6'],
     ];
+
+    // public $coordinates;
+
+    public function mount()
+    {
+        // $this->coordinates = Kegiatan::select('id', 'latitude', 'longitude')->get();
+        // dd($this->coordinates[0]['latitude']);
+    }
 
     public function render(): mixed
     {
@@ -107,15 +133,11 @@ new class extends Component
     }
 }; ?>
 
-<div class="grid h-full grid-cols-12 gap-4">
+<div class="grid h-full grid-cols-3">
     <!-- Bagian Tabel (3 dari 12 kolom) -->
-    <div class="col-span-3 grid-rows-5">
-        <x-card class="row-span-1 text-xs" body-class="p-1">
-            <x-input label="Cari Kegiatan" class="h-10" wire:model="search" icon-right="o-magnifying-glass" inline />
-        </x-card>
-
-        <x-card class="w-full row-span-3 text-xs" title="Daftar Kegiatan" style="padding: 0.25rem;">
-            <div class="overflow-x-auto">
+    <div>
+        <x-card class="w-full text-xs" title="Daftar Kegiatan" style="padding: 0.25rem;">
+            <div class="">
                 <x-table :headers="$headers" :rows="$kegiatans" class="w-full p-1 text-xs">
                     @scope('cell_latest_progres', $kegiatans)
                     <p>{{ $kegiatans->latest_progres ?? '0' }}%</p>
@@ -125,11 +147,17 @@ new class extends Component
                         class="w-1/6 btn-xs" />
                     @endscope
                 </x-table>
+                {{ $kegiatans->onEachSide(0)->links() }}
+                {{ $kegiatans->firstItem() }}
+                {{ $kegiatans->lastItem() }}
+                {{ $kegiatans->total() }}
+                {{ $kegiatans->currentPage() }}
+                <a wire:click="gotoPage(7, 'page')">hell</a>
             </div>
         </x-card>
 
         <!-- Filter Dropdowns -->
-        <div class="flex row-span-1 gap-2 mt-4">
+        <div class="flex gap-2 mt-4">
             <x-dropdown label="Filter 1" class="btn-outline">
                 <x-menu-item title="Hey" />
                 <x-menu-item title="How are you?" />
@@ -146,72 +174,80 @@ new class extends Component
     </div>
     <!-- Bagian Card (4 dari 12 kolom), ditampilkan berdasarkan showDetail -->
     @if ($showDetail)
-    <div class="col-span-4 space-y-2">
+    <div class="p-4 bg-base-200 overflow-auto">
         <!-- Detail Kegiatan -->
-        <x-card class="w-full text-sm h-80 bg-base-200 overflow-auto">
-            <x-slot name="title">
-                <h2 class="text-sm font-bold">Detail Kegiatan {{ $selectedKegiatan->nama }}</h2>
-            </x-slot>
+        <div class="mb-4 flex items-center">
+            <h2 class="text-md font-bold">Detail Kegiatan {{ $selectedKegiatan->nama }}</h2>
+            <x-button
+                icon="m-pencil-square"
+                link="{{ route('edit-kegiatan', ['kegiatan' => $selectedKegiatan->id]) }}"
+                spinner
+                class="ml-2 btn-sm btn-ghost"
+            />
+        </div>
 
-            <div class="flex flex-col">
-                <table class="table">
-                    <tbody>
-                        @foreach($detailKegiatan as $d)
-                        <tr>
-                            <td class="opacity-60 p-0">{{ $d['name'] }}</td>
-                            <td class="p-0">: {{ $d['data'] }}</td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-        </x-card>
+        <div class="flex flex-col">
+            <table class="table">
+                <tbody>
+                    @foreach($detailKegiatan as $d)
+                    <tr>
+                        <td class="opacity-60 p-0">{{ $d['name'] }}</td>
+                        <td class="p-0">: {{ $d['data'] }}</td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
 
         <!-- Laporan Kegiatan -->
-        <x-card class="w-full h-80 bg-base-200" separator>
-            <x-slot name="title" class="grid grid-cols-12 gap-1">
-                <h2 class="col-span-11 text-sm font-bold h-fit">Laporan Kegiatan {{ $selectedKegiatan->nama }}</h2>
-                <x-button icon="o-plus" link="{{ route('add-laporan', [
-                    'selectedBidang' => $selectedKegiatan->program->bidang->id,
-                    'selectedProgram' => $selectedKegiatan->program->id,
-                    'selectedKegiatan' => $selectedKegiatan->id,
-                ]) }}" class="col-span-1 ml-2 justify-content-center h-fit btn-square btn-xs" />
-            </x-slot>
-            <div class="relative mb-1 overflow-y-auto text-sm max-h-60">
-                <ul class="timeline timeline-vertical">
-                    @foreach ($selectedKegiatan->laporan as $laporan)
-                        <li>
-                            <hr />
-                            <div class="timeline-start">
-                                <x-button
-                                    icon="o-pencil-square"
-                                    link="{{ route('edit-laporan', ['laporan' => $laporan->id]) }}"
-                                    spinner
-                                    class="btn-sm btn-ghost"
-                                />
-                                {{ $laporan->progres }}%
-                            </div>
-                            <div class="timeline-middle">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-5 w-5">
-                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" />
-                                </svg>
-                            </div>
-                            <div class="timeline-end">
-                                <p class="font-bold">{{ $laporan->judul}}</p>
-                                <p class="opacity-80">{{ $laporan->created_at->format('d-M-Y H:i') }}</p>
-                                <p class="opacity-80">{{ $laporan->deskripsi}}</p>
-                            </div>
-                            <hr />
-                        </li>
-                    @endforeach
-                </ul>
-            </div>
-        </x-card>
+        <div class="flex my-4">
+            <h2 class="text-md font-bold">Laporan Kegiatan</h2>
+            <x-button
+                icon="o-plus"
+                link="{{
+                    route('add-laporan', [
+                        'selectedBidang' => $selectedKegiatan->program->bidang->id,
+                        'selectedProgram' => $selectedKegiatan->program->id,
+                        'selectedKegiatan' => $selectedKegiatan->id,
+                    ])
+                }}"
+                class="col-span-1 ml-2 justify-content-center h-fit btn-square btn-xs btn-outline"
+            />
+        </div>
+        <ul class="timeline timeline-vertical">
+            @foreach ($selectedKegiatan->laporan as $laporan)
+                <li>
+                    <hr />
+                    <div class="timeline-start text-right">
+                        {{ $laporan->progres }}%
+                        <p class="opacity-80">{{ $laporan->created_at->format('d-M-Y H:i') }}</p>
+                    </div>
+                    <div class="timeline-middle">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-5 w-5">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div class="timeline-end">
+                        <div class="flex items-center">
+                            <span class="font-bold">{{ $laporan->judul}}</span>
+                            <x-button
+                                icon="m-pencil-square"
+                                link="{{ route('edit-laporan', ['laporan' => $laporan->id]) }}"
+                                spinner
+                                class="ml-2 btn-sm btn-ghost"
+                            />
+                        </div>
+                        <p class="opacity-80">{{ $laporan->deskripsi}}</p>
+                    </div>
+                    <hr />
+                </li>
+            @endforeach
+        </ul>
     </div>
     @endif
 
     <!-- Bagian Map (5 dari 12 kolom) -->
-    <div class="{{ $showDetail ? 'col-span-5' : 'col-span-9' }}">
+    <div class="{{ $showDetail ? 'col-span-1' : 'col-span-2' }}">
         <div wire:ignore class="w-full h-full" id="peta"></div>
     </div>
 </div>
