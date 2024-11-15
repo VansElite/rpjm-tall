@@ -30,13 +30,22 @@ new class extends Component {
         ['key' => 'id', 'label' => 'No'],
         ['key' => 'nama', 'label' => 'Nama Kegiatan'],
         ['key' => 'status', 'label' => 'Status'],
-        ['key' => 'laporan_progres', 'label' => 'Progres'],
+        ['key' => 'latest_progres', 'label' => 'Progres'],
     ];
 
     public function render(): mixed
     {
+        $kegiatans = Kegiatan::withAggregate('laporan', 'progres')
+            ->with('latestProgress')
+            ->paginate(10);
+
+        // Menambahkan progres terakhir ke dalam array headers untuk setiap kegiatan
+        foreach ($kegiatans as $kegiatan) {
+            $kegiatan->latest_progres = $kegiatan->latestProgress->progres ?? '0'; // Nilai default 0 jika tidak ada laporan
+        }
+
         return view('livewire.direktori-kegiatan', [
-            'kegiatans' => Kegiatan::withAggregate('laporan', 'progres')->paginate(10), // Menggunakan paginate
+            'kegiatans' => $kegiatans,
         ]);
     }
 
@@ -57,6 +66,9 @@ new class extends Component {
     <x-card title="Data Kegiatan RPJM Tirtomulyo" class="flex mx-3 my-3 bg-base-200 rounded-xl" subtitle="Data Rencana Pembangunan Jangka Menengah Tirtomulyo" separator>
         <x-table :headers="$headers" :rows="$kegiatans" with-pagination>
         {{-- Special `actions` slot --}}
+            @scope('cell_latest_progres', $kegiatans)
+            <p>{{ $kegiatans->latest_progres ?? '0' }}%</p>
+            @endscope
             @scope('actions', $kegiatan)
             <div class="flex gap-2">
                 <x-button icon="o-folder-open" wire:click="#" spinner class="btn-sm"/>

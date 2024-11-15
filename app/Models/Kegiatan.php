@@ -53,4 +53,9 @@ class Kegiatan extends Model
     {
         return $this->hasMany(Laporan::class, 'id_kegiatan');
     }
+
+    public function latestProgress()
+    {
+        return $this->hasOne(Laporan::class,'id_kegiatan')->latestOfMany();
+    }
 }
