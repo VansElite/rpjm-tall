@@ -85,7 +85,10 @@ new class extends Component {
     @if ($showDetail)
     <div class="col-span-4 space-y-4">
         <!-- Detail Kegiatan -->
-        <x-card title="Detail Kegiatan {{ $selectedKegiatan->nama }}" class="w-full h-80 bg-base-200" separator>
+        <x-card class="w-full h-80 bg-base-200" separator>
+            <x-slot name="title">
+                <h2 class="text-sm font-bold">Detail Kegiatan {{ $selectedKegiatan->nama }}</h2>
+            </x-slot>
             <p>Status {{ $selectedKegiatan->status }}</p>
             <p>Lokasi {{ $selectedKegiatan->dusun->nama ?? '-' }}</p>
             <p>Tahun Pelaksanaan</p>
@@ -95,11 +98,12 @@ new class extends Component {
         </x-card>
 
         <!-- Laporan Kegiatan -->
-        <x-card title="Laporan Kegiatan {{$selectedKegiatan->nama}}" class="w-full h-80 bg-base-200" separator>
-            <x-slot:actions>
-                <x-button label="Tambah Laporan" class="btn-primary" />
-            </x-slot:actions>
-            <div class="grid grid-flow-row auto-rows-max">
+        <x-card class="w-full h-80 bg-base-200" separator>
+            <x-slot name="title">
+                <h2 class="text-sm font-bold">Laporan Kegiatan {{ $selectedKegiatan->nama }}</h2>
+                <x-button icon="o-plus" class="btn-square btn-sm" />
+            </x-slot>
+            <div class="relative overflow-y-auto text-sm" style="max-height: calc(100% - 3rem);">
                 @foreach ($selectedKegiatan->laporan as $laporan)
                 <x-timeline-item
                     title="{{ $laporan->judul }}"
@@ -118,15 +122,15 @@ new class extends Component {
 </div>
 
 @script
-<script>
-    mapboxgl.accessToken = 'pk.eyJ1IjoidmFuc2VsaXRlMjEiLCJhIjoiY20yeWd2dDZyMDB3MjJtc2piZjE1ZDk0OSJ9.yDmaTMSvuPWK-iDhvldKWg';
-const map = new mapboxgl.Map({
-	container: 'peta', // container ID
-	style: 'mapbox://styles/mapbox/streets-v12', // style URL
-	center: [110.299322, -7.9701668], // starting position [lng, lat]
-	zoom: 13, // starting zoom
-});
+    <script>
+        mapboxgl.accessToken = 'pk.eyJ1IjoidmFuc2VsaXRlMjEiLCJhIjoiY20yeWd2dDZyMDB3MjJtc2piZjE1ZDk0OSJ9.yDmaTMSvuPWK-iDhvldKWg';
+        const map = new mapboxgl.Map({
+            container: 'peta', // container ID
+            style: 'mapbox://styles/mapbox/streets-v12', // style URL
+            center: [110.299322, -7.9701668], // starting position [lng, lat]
+            zoom: 13, // starting zoom
+        });
 
 
-</script>
+    </script>
 @endscript
