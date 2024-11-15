@@ -10,6 +10,7 @@ new class extends Component {
     public string $search;
     public bool $showDetail = false;
     public ?Kegiatan $selectedKegiatan = null; // Properti untuk menyimpan kegiatan yang dipilih
+    public $detailKegiatan = [];
 
 
     public $headers = [
@@ -41,12 +42,63 @@ new class extends Component {
     public function selectKegiatan($id)
     {
         $this->selectedKegiatan = Kegiatan::with(['dusun', 'laporan'])->find($id);
+        $this->setupDetailKegiatan();
         $this->showDetail = !$this->showDetail;
     }
 
     public function getShowDetailProperty()
     {
         return !is_null($this->selectedKegiatan);
+    }
+
+    public function setupDetailKegiatan()
+    {
+        $this->detailKegiatan = [
+            [
+                'name' => 'Status',
+                'data' => $this->selectedKegiatan->status,
+            ],
+            [
+                'name' => 'Progress',
+                'data' => $this->selectedKegiatan->laporan->isNotEmpty()
+                    ? $this->selectedKegiatan->laporan->last()->progres . "%"
+                    : "0%"
+            ],
+            [
+                'name' => 'Bidang',
+                'data' => $this->selectedKegiatan->program->bidang->nama,
+            ],
+            [
+                'name' => 'Dusun',
+                'data' => $this->selectedKegiatan->dusun->nama,
+            ],
+            [
+                'name' => 'Volume',
+                'data' => $this->selectedKegiatan->volume . " " . $this->selectedKegiatan->satuan,
+            ],
+            [
+                'name' => 'Tahun',
+                'data' =>
+                    ($this->selectedKegiatan->tahun_1 ? "1, " : "")
+                    . ($this->selectedKegiatan->tahun_2 ? "2, " : "")
+                    . ($this->selectedKegiatan->tahun_3 ? "3, " : "")
+                    . ($this->selectedKegiatan->tahun_4 ? "4, " : "")
+                    . ($this->selectedKegiatan->tahun_5 ? "5, " : "")
+                    . ($this->selectedKegiatan->tahun_6 ? "6" : ""),
+            ],
+            [
+                'name' => 'Lokasi',
+                'data' => $this->selectedKegiatan->lokasi
+            ],
+            [
+                'name' => 'Koordinat',
+                'data' => $this->selectedKegiatan->latitude . ", " . $this->selectedKegiatan->longitude
+            ],
+            [
+                'name' => 'Deskripsi',
+                'data' => $this->selectedKegiatan->deskripsi
+            ],
+        ];
     }
 
 }; ?>
@@ -92,22 +144,23 @@ new class extends Component {
     @if ($showDetail)
     <div class="col-span-4 space-y-2">
         <!-- Detail Kegiatan -->
-        <x-card class="w-full h-80 bg-base-200" separator>
+        <x-card class="w-full text-sm h-80 bg-base-200 overflow-auto">
             <x-slot name="title">
                 <h2 class="text-sm font-bold">Detail Kegiatan {{ $selectedKegiatan->nama }}</h2>
             </x-slot>
-            <p>Status {{ $selectedKegiatan->status }}</p>
-            <p>Lokasi {{ $selectedKegiatan->dusun->nama ?? '-' }}</p>
-            <p>Tahun Pelaksanaan</p>
-            <p>Progres:
-                @if ($selectedKegiatan->laporan->isNotEmpty())
-                <x-progress-radial value="{{ $selectedKegiatan->laporan->last()->progres ?? '0' }}" />
-                @else
-                <span>Belum ada laporan</span>
-                @endif
-            </p>
-            <menu-separator/>
-            <p>{{ $selectedKegiatan->deskripsi }}</p>
+
+            <div class="flex flex-col">
+                <table class="table">
+                    <tbody>
+                        @foreach($detailKegiatan as $d)
+                        <tr>
+                            <td class="opacity-60 p-0">{{ $d['name'] }}</td>
+                            <td class="p-0">: {{ $d['data'] }}</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
         </x-card>
 
         <!-- Laporan Kegiatan -->
