@@ -25,7 +25,7 @@ new class extends Component {
 
         $kegiatans = Kegiatan::withAggregate('dusun','nama')->withAggregate('laporan', 'progres')
             ->with('latestProgress')
-            ->paginate(10);
+            ->paginate(5);
 
         // Menambahkan progres terakhir ke dalam array headers untuk setiap kegiatan
         foreach ($kegiatans as $kegiatan) {
