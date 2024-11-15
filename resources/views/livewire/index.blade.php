@@ -178,13 +178,33 @@ new class extends Component
                 ]) }}" class="col-span-1 ml-2 justify-content-center h-fit btn-square btn-xs" />
             </x-slot>
             <div class="relative mb-1 overflow-y-auto text-sm max-h-60">
-                @foreach ($selectedKegiatan->laporan as $laporan)
-                <x-timeline-item
-                    title="{{ $laporan->judul }}"
-                    subtitle="{{ $laporan->created_at->format('d M Y') }}"
-                    description="{{ $laporan->deskripsi }}"
-                    />
-                @endforeach
+                <ul class="timeline timeline-vertical">
+                    @foreach ($selectedKegiatan->laporan as $laporan)
+                        <li>
+                            <hr />
+                            <div class="timeline-start">
+                                <x-button
+                                    icon="o-pencil-square"
+                                    link="{{ route('edit-laporan', ['laporan' => $laporan->id]) }}"
+                                    spinner
+                                    class="btn-sm btn-ghost"
+                                />
+                                {{ $laporan->progres }}%
+                            </div>
+                            <div class="timeline-middle">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-5 w-5">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <div class="timeline-end">
+                                <p class="font-bold">{{ $laporan->judul}}</p>
+                                <p class="opacity-80">{{ $laporan->created_at->format('d-M-Y H:i') }}</p>
+                                <p class="opacity-80">{{ $laporan->deskripsi}}</p>
+                            </div>
+                            <hr />
+                        </li>
+                    @endforeach
+                </ul>
             </div>
         </x-card>
     </div>
