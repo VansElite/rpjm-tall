@@ -135,43 +135,63 @@ new class extends Component
 
 <div class="grid h-full grid-cols-3">
     <!-- Bagian Tabel (3 dari 12 kolom) -->
-    <div>
-        <x-card class="w-full text-xs" title="Daftar Kegiatan" style="padding: 0.25rem;">
-            <div class="">
-                <x-table :headers="$headers" :rows="$kegiatans" class="w-full p-1 text-xs">
-                    @scope('cell_latest_progres', $kegiatans)
-                    <p>{{ $kegiatans->latest_progres ?? '0' }}%</p>
-                    @endscope
-                    @scope('actions', $kegiatan)
-                    <x-button icon="o-folder-open" wire:click="selectKegiatan({{ $kegiatan->id }})" spinner
-                        class="w-1/6 btn-xs" />
-                    @endscope
-                </x-table>
-                {{ $kegiatans->onEachSide(0)->links() }}
-                {{ $kegiatans->firstItem() }}
-                {{ $kegiatans->lastItem() }}
-                {{ $kegiatans->total() }}
-                {{ $kegiatans->currentPage() }}
-                <a wire:click="gotoPage(7, 'page')">hell</a>
-            </div>
-        </x-card>
+    <div class="p-4 overflow-auto">
+        <table class="table mb-4">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Kegiatan</th>
+                    <th>Dusun</th>
+                    <th>Progress</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($kegiatans as $row)
+                <tr class="hover">
+                    <th>{{ $loop->index + $kegiatans->firstItem() }}</th>
+                    <td>{{ $row->nama }}</td>
+                    <td>{{ $row->dusun->nama }}</td>
+                    <td>{{ $row->latest_progres }}%</td>
+                    <th>
+                        <button
+                            class="btn btn-ghost btn-xs"
+                            wire:click="selectKegiatan({{ $row->id }})"
+                        >
+                            details
+                        </button>
+                    </th>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
 
-        <!-- Filter Dropdowns -->
-        <div class="flex gap-2 mt-4">
-            <x-dropdown label="Filter 1" class="btn-outline">
-                <x-menu-item title="Hey" />
-                <x-menu-item title="How are you?" />
-            </x-dropdown>
-            <x-dropdown label="Filter 2">
-                <x-menu-item title="Hey" />
-                <x-menu-item title="How are you?" />
-            </x-dropdown>
-            <x-dropdown label="Filter 3">
-                <x-menu-item title="Hey" />
-                <x-menu-item title="How are you?" />
-            </x-dropdown>
+        <div class="flex items-center">
+            <p class="text-sm flex-grow opacity-80">
+                <b>{{ $kegiatans->firstItem() }} - {{ $kegiatans->lastItem() }}</b> dari <b>{{ $kegiatans->total() }}</b>
+            </p>
+            <div class="join">
+                <button
+                    class="join-item btn btn-xs"
+                    wire:click="gotoPage(1, 'page')"
+                ><<</button>
+                <button
+                    class="join-item btn btn-xs"
+                    wire:click="previousPage('page')"
+                ><</button>
+                <button class="join-item btn btn-xs">Page {{ $kegiatans->currentPage() }}</button>
+                <button
+                    class="join-item btn btn-xs"
+                    wire:click="nextPage('page')"
+                >></button>
+                <button
+                    class="join-item btn btn-xs"
+                    wire:click="gotoPage({{ $kegiatans->lastPage() }}, 'page')"
+                >>></button>
+            </div>
         </div>
     </div>
+
     <!-- Bagian Card (4 dari 12 kolom), ditampilkan berdasarkan showDetail -->
     @if ($showDetail)
     <div class="p-4 bg-base-200 overflow-auto">
