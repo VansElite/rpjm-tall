@@ -6,29 +6,55 @@ use App\Models\Dusun;
 use Livewire\Volt\Component;
 
 new class extends Component {
-    //
+    public $selectedBidang;
+    public $selectedDusun;
+
+    public $bidangs;
+    public $dusuns;
+
+    public function mount()
+    {
+        $this->bidangs = Bidang::all();
+        $this->dusuns = Dusun::all();
+    }
+
+    public function selectBidang($bidang)
+    {
+        $this->selectedBidang = $bidang;
+        $this->dispatch('filter-updated', [
+            'selectedBidang' => $this->selectedBidang,
+        ]);
+    }
+
+    public function selectDusun($dusun)
+    {
+        $this->selectedDusun = $dusun;
+        $this->dispatch('filter-updated', [
+            'selectedDusun' => $this->selectedDusun,
+        ]);
+    }
+
+
 }; ?>
 
 <nav class="flex items-center gap-2 p-2 border border-base-300">
     <a href="/" wire:navigate class="mx-4 text-2xl font-bold">RPJM</a>
 
-    <x-dropdown label="Bidang" class="btn-ghost" no-x-anchor responsive>
-        <x-menu-item title="Pendidikan" />
-        <x-menu-item title="Kesehatan" />
-        <x-menu-item title="Pekerjaan Umum & Penataan Ruang" />
-        <x-menu-item title="Kawasan Pemukiman" />
-        <x-menu-item title="Kehutanan dan Lingkungan Hidup" />
-        <x-menu-item title="Perhub dan Infokom" />
-        <x-menu-item title="Pariwisata" />
+    <x-dropdown label="Bidang" class="btn-ghost" wire:model="selectedBidang">
+        @foreach ($bidangs as $bidang)
+        <x-menu-item
+            title="{{ $bidang->nama }}"
+            wire:click="selectBidang({{ $bidang->id }})"
+        />
+    @endforeach
     </x-dropdown>
-    <x-dropdown label="Dusun" class="btn-ghost" no-x-anchor responsive>
-        <x-menu-item title="Plesan" />
-        <x-menu-item title="Paliyan" />
-        <x-menu-item title="Karen" />
-        <x-menu-item title="Gondangan" />
-        <x-menu-item title="Kergan" />
-        <x-menu-item title="Bracan" />
-        <x-menu-item title="Tokolan" />
+    <x-dropdown label="Dusun" class="btn-ghost" wire:model="selectedDusun">
+        @foreach ($dusuns as $dusun)
+        <x-menu-item
+            title="{{ $dusun->nama }}"
+            wire:click="selectDusun({{ $dusun->id }})"
+        />
+    @endforeach
     </x-dropdown>
     <x-dropdown label="Status" class="btn-ghost" no-x-anchor responsive>
         <x-menu-item title="Selesai" />

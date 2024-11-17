@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Kegiatan;
+use App\Models\Bidang;
 use Livewire\Volt\Component;
 use Livewire\WithPagination;
 
@@ -25,11 +26,15 @@ on.showDetail (kegiatan) {
 new class extends Component {
     use WithPagination;
 
-    public string $search;
+    public string $search = '';
 
     public bool $showDetail = false;
 
     public ?Kegiatan $selectedKegiatan = null; // Properti untuk menyimpan kegiatan yang dipilih
+    public $selectedBidang; //prop filter
+    public $selectedDusun;  //prop filter
+
+    public $selectedDetail = [];
 
     public $detailKegiatan = [];
 
@@ -42,11 +47,44 @@ new class extends Component {
     ];
 
 
+    protected $listeners = ['filter-updated' => 'applyFilter'];
+
+    public function applyFilter($filters)
+    {
+        if (isset($filters['selectedBidang'])) {
+            $this->selectedBidang = $filters['selectedBidang'];
+        }
+        if (isset($filters['selectedDusun'])) {
+            $this->selectedDusun = $filters['selectedDusun'];
+        }
+    }
+
     public function render(): mixed
     {
         // $this->kegiatans = Laporan::with(['kegiatan','kegiatan.dusun'])->get();
 
-        $kegiatans = Kegiatan::withAggregate('dusun', 'nama')->withAggregate('laporan', 'progres')->with('latestProgress', 'program.bidang')->paginate(5);
+        $query = Kegiatan::withAggregate('dusun', 'nama')
+        ->withAggregate('laporan', 'progres')
+        ->with('latestProgress', 'program.bidang');
+
+        // Filter berdasarkan Bidang
+        if ($this->selectedBidang) {
+            $query->whereHas('program.bidang', function ($q) {
+                $q->where('id', $this->selectedBidang);
+            });
+        }
+
+        // Filter berdasarkan Dusun
+        if ($this->selectedDusun) {
+            $query->where('id', $this->selectedDusun);
+        }
+
+        // Filter berdasarkan Search
+        if ($this->search) {
+            $query->where('nama', 'like', '%' . $this->search . '%');
+        }
+
+        $kegiatans = $query->paginate(5);
 
         $this->setupDataMaps($kegiatans);
 
@@ -65,7 +103,13 @@ new class extends Component {
     {
         $this->selectedKegiatan = Kegiatan::with(['dusun', 'laporan', 'program.bidang'])->find($id);
         $this->setupDetailKegiatan();
-
+        $this->selectedDetail = [
+            'id' => $this->selectedKegiatan->id,
+            'nama' => $this->selectedKegiatan->nama,
+            'longitude' => $this->selectedKegiatan->longitude,
+            'latitude' => $this->selectedKegiatan->latitude,
+            'bidang_nama' => $this->selectedKegiatan->program->bidang->nama ?? 'Tidak Ada Bidang',
+        ];
         $this->showDetail = !$this->showDetail;
     }
 
@@ -140,6 +184,15 @@ new class extends Component {
 <div class="grid h-full grid-cols-3">
     <!-- Bagian Tabel (3 dari 12 kolom) -->
     <div class="p-4 overflow-auto">
+
+        <div class="mb-4">
+            <input
+                type="text"
+                class="w-full rounded-md shadow-sm form-input"
+                placeholder="Cari kegiatan..."
+                wire:model.debounce.300ms="search">
+        </div>
+
         <table class="table mb-4">
             <thead>
                 <tr>
@@ -263,7 +316,7 @@ new class extends Component {
         const map = new mapboxgl.Map({
             container: 'peta', // container ID
             style: 'mapbox://styles/mapbox/streets-v12', // style URL
-            center: [110.299322, -7.9701668], // starting position [lng, lat]
+            center: [110.3002315278843, -7.970304705716586], // starting position [lng, lat]
             zoom: 13, // starting zoom
         });
 
@@ -288,24 +341,87 @@ new class extends Component {
         };
 
         let kegiatanMarkers = [];
+        let selectedMarker = null;
+
+        function clearMarkers(markers) {
+            markers.forEach(marker => marker.remove());
+            markers.length = 0; // Clear the array
+        };
+
+        function fitMarkersToBounds(dataMap, map) {
+            if (dataMap.length === 0) return;
+
+            // Ambil semua koordinat dari dataMap
+            const coordinates = dataMap.map(kegiatan => [kegiatan.longitude, kegiatan.latitude]);
+
+            // Panggil fitBounds dengan bounding box yang mencakup semua koordinat
+            map.fitBounds(coordinates, {
+                padding: 50, // Padding di sekitar bounds dalam piksel
+                maxZoom: 13, // Zoom maksimal
+                duration: 500, // Durasi animasi dalam milidetik
+            });
+        };
+
         function renderMarkers(dataMap, map) {
-            if (kegiatanMarkers.length > 0) {
-                kegiatanMarkers.forEach(kegiatanMarker => kegiatanMarker.remove())
-            }
+            clearMarkers(kegiatanMarkers);
             kegiatanMarkers = dataMap.map(kegiatan => createMarker(
                 [kegiatan.longitude, kegiatan.latitude],
                 map,
                 warnaBidang[kegiatan.bidang_nama] || warnaBidang['Default'],
                 kegiatan.nama
             ));
+
+            // Pusatkan peta pada semua marker
+            fitMarkersToBounds(dataMap, map);
+
             window.kegiatanMarkers = kegiatanMarkers;
+        };
+
+        function renderSelectedMarker(selectedKegiatan, map) {
+            clearMarkers(kegiatanMarkers); // Remove all markers from renderMarkers
+            if (selectedMarker) {
+                selectedMarker.remove(); // Remove existing selectedMarker if any
+            }
+
+            if (selectedKegiatan) {
+                selectedMarker = createMarker(
+                    [selectedKegiatan.longitude, selectedKegiatan.latitude],
+                    map,
+                    warnaBidang[selectedKegiatan.bidang_nama] || warnaBidang['Default'],
+                    selectedKegiatan.nama
+                );
+                const currentZoom = map.getZoom();
+                map.flyTo({
+                    center: [selectedKegiatan.longitude, selectedKegiatan.latitude],
+                    minzoom: currentZoom - 3,
+                    offset: [-225, -10],
+                    duration: 500,
+                });
+            }
         };
 
         Livewire.hook('morph.updated', ({ el, component }) => {
             if(el.getAttribute('did') == 'peta-wrap') {
-                window.kegiatanMarkers.map(r => r.remove())
-                let dataMap = $wire.get('dataMap');
-                renderMarkers(dataMap, map);
+                const dataMap = $wire.get('dataMap');
+                const selectedKegiatan = $wire.get('selectedDetail');
+                const showDetail = $wire.get('showDetail');
+
+                if (showDetail) {
+                    // Render only the selected marker
+                    renderSelectedMarker(selectedKegiatan, map);
+                    console.log(selectedKegiatan);
+                } else {
+                    // Revert to rendering all markers
+                    if (selectedMarker) {
+                        selectedMarker.remove();
+                        selectedMarker = null;
+                    }
+                    renderMarkers(dataMap, map);
+                };
+
+                // window.kegiatanMarkers.map(r => r.remove())
+                // let dataMap = $wire.get('dataMap');
+                // renderMarkers(dataMap, map);
             }
         });
 
