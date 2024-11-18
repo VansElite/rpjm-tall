@@ -3,6 +3,7 @@
 use App\Models\Kegiatan;
 use App\Models\Bidang;
 use App\Models\Dusun;
+use App\Models\Laporan;
 use Livewire\Volt\Component;
 use Livewire\WithPagination;
 
@@ -260,6 +261,12 @@ new class extends Component {
             ],
         ];
     }
+
+    public function deleteLaporan($id)
+    {
+        Laporan::destroy($id);
+        return to_route('index');
+    }
 }; ?>
 
 <div class="grid h-full grid-cols-3">
@@ -400,7 +407,10 @@ new class extends Component {
                                 <span class="font-bold">{{ $laporan->judul }}</span>
                                 <x-button icon="m-pencil-square"
                                     link="{{ route('edit-laporan', ['laporan' => $laporan->id]) }}" spinner
-                                    class="ml-2 btn-sm btn-ghost" />
+                                    class="ml-2 btn-xs btn-ghost" />
+                                <x-button icon="o-trash"
+                                    wire:click="deleteLaporan({{ $laporan->id }})" spinner
+                                    class="ml-2 btn-xs btn-ghost" />
                             </div>
                             <p class="opacity-80">{{ $laporan->deskripsi }}</p>
                         </div>
