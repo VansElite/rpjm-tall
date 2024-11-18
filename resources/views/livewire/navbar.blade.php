@@ -7,9 +7,12 @@ use Livewire\Volt\Component;
 
 new class extends Component {
     public $selectedBidang;
+    public $selectedStatus;
     public $selectedDusun;
+    public $selectedYear;
 
     public $bidangs;
+    public $statuses;
     public $dusuns;
 
     public function mount()
@@ -21,16 +24,50 @@ new class extends Component {
     public function selectBidang($bidang)
     {
         $this->selectedBidang = $bidang;
+        $this->selectedDusun = null; //reset dusun
+        $this->selectedStatus = null; //reset status
+        $this->selectedYear = null; //reset status
         $this->dispatch('filter-updated', [
             'selectedBidang' => $this->selectedBidang,
+            'selectedDusun' => $this->selectedDusun,
+            'selectedStatus' => $this->selectedStatus,
+            'selectedYear' => $this->selectedYear,
         ]);
     }
 
     public function selectDusun($dusun)
     {
         $this->selectedDusun = $dusun;
+        $this->selectedStatus = null; //reset status
+        $this->selectedYear = null; //reset status
         $this->dispatch('filter-updated', [
+            'selectedBidang' => $this->selectedBidang,
             'selectedDusun' => $this->selectedDusun,
+            'selectedStatus' => $this->selectedStatus,
+            'selectedYear' => $this->selectedYear,
+        ]);
+    }
+
+    public function selectStatus($status)
+    {
+        $this->selectedStatus = $status;
+        $this->selectedYear = null; //reset status
+        $this->dispatch('filter-updated', [
+            'selectedBidang' => $this->selectedBidang,
+            'selectedDusun' => $this->selectedDusun,
+            'selectedStatus' => $this->selectedStatus,
+            'selectedYear' => $this->selectedYear,
+        ]);
+    }
+
+    public function selectYear($year)
+    {
+        $this->selectedYear = $year;
+        $this->dispatch('filter-updated', [
+            'selectedBidang' => $this->selectedBidang,
+            'selectedDusun' => $this->selectedDusun,
+            'selectedStatus' => $this->selectedStatus,
+            'selectedYear' => $this->selectedYear,
         ]);
     }
 
@@ -46,7 +83,7 @@ new class extends Component {
             title="{{ $bidang->nama }}"
             wire:click="selectBidang({{ $bidang->id }})"
         />
-    @endforeach
+        @endforeach
     </x-dropdown>
     <x-dropdown label="Dusun" class="btn-ghost" wire:model="selectedDusun">
         @foreach ($dusuns as $dusun)
@@ -54,13 +91,22 @@ new class extends Component {
             title="{{ $dusun->nama }}"
             wire:click="selectDusun({{ $dusun->id }})"
         />
-    @endforeach
+        @endforeach
     </x-dropdown>
-    <x-dropdown label="Status" class="btn-ghost" no-x-anchor responsive>
-        <x-menu-item title="Selesai" />
-        <x-menu-item title="Sedang Berjalan" />
-        <x-menu-item title="Direncanakan" />
+    <x-dropdown label="Status" class="btn-ghost" wire:model="selectedStatus" no-x-anchor responsive>
+        <x-menu-item wire:click="selectStatus('selesai')" title="Selesai" />
+        <x-menu-item wire:click="selectStatus('sedangBerjalan')" title="Sedang Berjalan" />
+        <x-menu-item wire:click="selectStatus('direncanakan')" title="Direncanakan" />
     </x-dropdown>
+    <x-dropdown label="Tahun" class="btn-ghost" wire:model="selectedYear" no-x-anchor responsive>
+        <x-menu-item wire:click="selectYear('1')" title="Tahun 1" />
+        <x-menu-item wire:click="selectYear('2')" title="Tahun 2" />
+        <x-menu-item wire:click="selectYear('3')" title="Tahun 3" />
+        <x-menu-item wire:click="selectYear('4')" title="Tahun 4" />
+        <x-menu-item wire:click="selectYear('5')" title="Tahun 5" />
+        <x-menu-item wire:click="selectYear('6')" title="Tahun 6" />
+    </x-dropdown>
+
 
     <div id="space" class="flex-grow"></div>
 
