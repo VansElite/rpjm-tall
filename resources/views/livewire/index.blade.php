@@ -2,6 +2,7 @@
 
 use App\Models\Kegiatan;
 use App\Models\Bidang;
+use App\Models\Dusun;
 use Livewire\Volt\Component;
 use Livewire\WithPagination;
 
@@ -26,46 +27,82 @@ on.showDetail (kegiatan) {
 new class extends Component {
     use WithPagination;
 
-    public string $search = '';
-
     public bool $showDetail = false;
 
+    public array $activeFilters = []; //properti untuk menyimpan filter yang aktif
     public ?Kegiatan $selectedKegiatan = null; // Properti untuk menyimpan kegiatan yang dipilih
-    public $selectedBidang; //prop filter
-    public $selectedDusun;  //prop filter
+    public $selectedBidang; //prop filter bidang
+    public $selectedDusun; //prop filter dusun
+    public $selectedStatus; //prop filter Status
+    public $selectedYear; //prop filter Tahun
+    public string $search = ''; //prop untuk menyimpan input yang akan di search
 
-    public $selectedDetail = [];
+    public $selectedDetail = []; //prop menyimpan data kegiatan yang dipilih untuk digunakan pada card detail dan laporan
 
-    public $detailKegiatan = [];
+    public $detailKegiatan = []; //prop menyimpan data kegiatan yang dipilih untuk digunakan pada card detail dan laporan
 
-    public $dataMap = [];
+    public $dataMap = []; //prop menyimpan data kegiatan untuk digunakan ke js (mapbox)
 
-    public $headers = [
-        ['key' => 'nama', 'label' => 'Nama Kegiatan', 'class' => 'text-center w-1/4'],
-        ['key' => 'dusun_nama', 'label' => 'Dusun', 'class' => 'text-center w-1/6'],
-        ['key' => 'latest_progres', 'label' => 'Progres', 'class' => 'text-center w-1/6'],
-    ];
+    public $headers = [['key' => 'nama', 'label' => 'Nama Kegiatan', 'class' => 'text-center w-1/4'], ['key' => 'dusun_nama', 'label' => 'Dusun', 'class' => 'text-center w-1/6'], ['key' => 'latest_progres', 'label' => 'Progres', 'class' => 'text-center w-1/6']];
 
-
-    protected $listeners = ['filter-updated' => 'applyFilter'];
+    protected $listeners = ['filter-updated' => 'applyFilter', 'removeFilter' => 'removeFilter'];
 
     public function applyFilter($filters)
     {
-        if (isset($filters['selectedBidang'])) {
-            $this->selectedBidang = $filters['selectedBidang'];
+        $this->selectedBidang = $filters['selectedBidang'] ?? null;
+        $this->selectedDusun = $filters['selectedDusun'] ?? null;
+        $this->selectedStatus = $filters['selectedStatus'] ?? null;
+        $this->selectedYear = $filters['selectedYear'] ?? null;
+
+        // Perbarui activeFilters
+        $this->activeFilters = [];
+
+        if ($this->selectedBidang) {
+            $bidangName = Bidang::find($this->selectedBidang)->nama ?? 'Unknown';
+            $this->activeFilters[] = "Bidang: {$bidangName}";
         }
-        if (isset($filters['selectedDusun'])) {
-            $this->selectedDusun = $filters['selectedDusun'];
+
+        if ($this->selectedDusun) {
+            $dusunName = Dusun::find($this->selectedDusun)->nama ?? 'Unknown';
+            $this->activeFilters[] = "Dusun: {$dusunName}";
         }
+
+        if ($this->selectedStatus) {
+            $status = $this->selectedStatus ?? 'Unknown';
+            $this->activeFilters[] = "Status: {$status}";
+        }
+
+        if ($this->selectedYear) {
+            $year = $this->selectedYear ?? 'Unknown';
+            $this->activeFilters[] = "Tahun: {$year}";
+        }
+
+        $this->resetPage();
+    }
+
+    public function removeFilter($filterString)
+    {
+        [$type, $value] = explode(': ', $filterString);
+
+        if ($type === 'Bidang') {
+            $this->selectedBidang = null;
+        } elseif ($type === 'Dusun') {
+            $this->selectedDusun = null;
+        } elseif($type === 'Status') {
+            $this->selectedStatus = null;
+        } elseif($type === 'Tahun') {
+            $this->selectedYear = null;
+        }
+
+        $this->activeFilters = array_filter($this->activeFilters, fn($filter) => $filter !== $filterString);
+
+        $this->resetPage();
     }
 
     public function render(): mixed
     {
-        // $this->kegiatans = Laporan::with(['kegiatan','kegiatan.dusun'])->get();
-
-        $query = Kegiatan::withAggregate('dusun', 'nama')
-        ->withAggregate('laporan', 'progres')
-        ->with('latestProgress', 'program.bidang');
+        //query utama
+        $query = Kegiatan::with('latestProgress', 'program.bidang', 'dusun', 'laporan');
 
         // Filter berdasarkan Bidang
         if ($this->selectedBidang) {
@@ -76,7 +113,19 @@ new class extends Component {
 
         // Filter berdasarkan Dusun
         if ($this->selectedDusun) {
-            $query->where('id', $this->selectedDusun);
+            $query->whereHas('dusun', function ($q) {
+                $q->where('id', $this->selectedDusun);
+            });
+        }
+
+        // Filter berdasarkan Status
+        if ($this->selectedStatus) {
+            $query->where('status', $this->selectedStatus);;
+        }
+
+        //filter berdasarkan Tahun
+        if ($this->selectedYear) {
+            $query->where('tahun_' . $this->selectedYear, true);
         }
 
         // Filter berdasarkan Search
@@ -86,6 +135,7 @@ new class extends Component {
 
         $kegiatans = $query->paginate(5);
 
+        // data untuk peta
         $this->setupDataMaps($kegiatans);
 
         // Menambahkan progres terakhir ke dalam array headers untuk setiap kegiatan
@@ -96,6 +146,38 @@ new class extends Component {
         return view('livewire.index', [
             'kegiatans' => $kegiatans,
         ]);
+    }
+
+    public function resetFilters()
+    {
+        $this->search = '';
+        $this->selectedBidang = null;
+        $this->selectedDusun = null;
+        $this->selectedStatus = null;
+        $this->selectedYear = null;
+        $this->activeFilters = [];
+        $this->resetPage(); // Kembali ke halaman pertama
+    }
+
+    public function searchKegiatan()
+    {
+        $this->resetPage(); // Reset ke halaman pertama
+
+        // Jika input kosong, reset pencarian
+        if (trim($this->search) === '') {
+            $this->search = '';
+        }
+
+        // Panggil ulang setupDataMaps untuk memperbarui dataMap
+        $query = Kegiatan::with('latestProgress', 'program.bidang', 'dusun', 'laporan');
+        if ($this->search) {
+            $query->where('nama', 'like', '%' . $this->search . '%');
+        }
+        $kegiatans = $query->get();
+        $this->setupDataMaps($kegiatans);
+
+        // Render ulang data
+        $this->render();
     }
 
     // Fungsi untuk memilih kegiatan dan menampilkan detailnya
@@ -113,8 +195,8 @@ new class extends Component {
         $this->showDetail = !$this->showDetail;
     }
 
-    public function setupDataMaps($data){
-
+    public function setupDataMaps($data)
+    {
         $this->dataMap = $data
             ->map(function ($kegiatan) {
                 return [
@@ -127,7 +209,6 @@ new class extends Component {
             })
             ->toArray();
     }
-
 
     public function getShowDetailProperty()
     {
@@ -184,15 +265,30 @@ new class extends Component {
 <div class="grid h-full grid-cols-3">
     <!-- Bagian Tabel (3 dari 12 kolom) -->
     <div class="p-4 overflow-auto">
-
-        <div class="mb-4">
-            <input
-                type="text"
-                class="w-full rounded-md shadow-sm form-input"
-                placeholder="Cari kegiatan..."
-                wire:model.debounce.300ms="search">
+        {{-- Component Search --}}
+        <div class="flex justify-center mb-4">
+            <x-card class="w-full h-fit">
+                <input type="text" class="w-full rounded-md shadow-sm form-input" icon="o-magnifying-glass" placeholder="Cari kegiatan..."
+                wire:model.debounce.300ms="search" wire:keydown.enter="searchKegiatan">
+            </x-card>
         </div>
-
+        {{-- Component Informasi Filters --}}
+        <div class="flex items-center">
+            <div class="flex flex-wrap gap-2">
+                @foreach ($activeFilters as $filter)
+                    <span class="inline-flex items-center px-3 py-1 text-sm text-blue-800 bg-blue-100 rounded-full">
+                        {{ $filter }}
+                        <button
+                            wire:click="removeFilter('{{ $filter }}')"
+                            class="ml-2 text-red-500 hover:text-red-700"
+                        >
+                            &times;
+                        </button>
+                    </span>
+                @endforeach
+            </div>
+        </div>
+        {{-- Component Data Tables --}}
         <table class="table mb-4">
             <thead>
                 <tr>
@@ -204,7 +300,7 @@ new class extends Component {
                 </tr>
             </thead>
             <tbody>
-                @foreach ($kegiatans as $row)
+                @forelse ($kegiatans as $row)
                     <tr class="hover">
                         <th>{{ $loop->index + $kegiatans->firstItem() }}</th>
                         <td>{{ $row->nama }}</td>
@@ -212,25 +308,38 @@ new class extends Component {
                         <td>{{ $row->latest_progres }}%</td>
                         <th>
                             <button class="btn btn-ghost btn-xs" wire:click="selectKegiatan({{ $row->id }})">
-                                details
+                                Details
                             </button>
                         </th>
                     </tr>
-                @endforeach
+                @empty
+                    <tr>
+                        <td colspan="5" class="text-center">Maaf, data tidak ditemukan.</td>
+                    </tr>
+                @endforelse
             </tbody>
         </table>
-
+        {{-- Component Paginations --}}
         <div class="flex items-center">
             <p class="flex-grow text-sm opacity-80">
                 <b>{{ $kegiatans->firstItem() }} - {{ $kegiatans->lastItem() }}</b> dari
                 <b>{{ $kegiatans->total() }}</b>
             </p>
             <div class="join">
-                <button class="join-item btn btn-xs" wire:click="gotoPage(1, 'page')"> << </button>
-                <button class="join-item btn btn-xs" wire:click="previousPage('page')"> < </button>
-                <button class="join-item btn btn-xs">Page {{ $kegiatans->currentPage() }}</button>
-                <button class="join-item btn btn-xs" wire:click="nextPage('page')"> > </button>
-                <button class="join-item btn btn-xs" wire:click="gotoPage({{ $kegiatans->lastPage() }}, 'page')">>></button>
+                <button class="join-item btn btn-xs" wire:click="gotoPage(1, 'page')">
+                    << </button>
+                        <button class="join-item btn btn-xs" wire:click="previousPage('page')">
+                            < </button>
+                                <button class="join-item btn btn-xs">Page {{ $kegiatans->currentPage() }}</button>
+                                <button class="join-item btn btn-xs" wire:click="nextPage('page')"> > </button>
+                                <button class="join-item btn btn-xs" wire:click="gotoPage({{ $kegiatans->lastPage() }}, 'page')"> >> </button>
+            </div>
+        </div>
+        <x-menu-separator />
+        <div class="flex items-center grid-cols-3 gap-2 mt-6">
+            <p class="col-span-2 mr-5 text-sm text-right text-gray-500">Started Build 28 Oct 2024 with Tall Stack & Mary UI</p>
+            <div class="col-span-1 justify-items-end">
+                <button wire:click="resetFilters" class="btn btn-sm btn-outline">Reset Filter</button>
             </div>
         </div>
     </div>
@@ -310,6 +419,8 @@ new class extends Component {
 
 @script
     <script>
+
+
         mapboxgl.accessToken =
             'pk.eyJ1IjoidmFuc2VsaXRlMjEiLCJhIjoiY20yeWd2dDZyMDB3MjJtc2piZjE1ZDk0OSJ9.yDmaTMSvuPWK-iDhvldKWg';
 
@@ -400,8 +511,11 @@ new class extends Component {
             }
         };
 
-        Livewire.hook('morph.updated', ({ el, component }) => {
-            if(el.getAttribute('did') == 'peta-wrap') {
+        Livewire.hook('morph.updated', ({
+            el,
+            component
+        }) => {
+            if (el.getAttribute('did') == 'peta-wrap') {
                 const dataMap = $wire.get('dataMap');
                 const selectedKegiatan = $wire.get('selectedDetail');
                 const showDetail = $wire.get('showDetail');
@@ -425,6 +539,11 @@ new class extends Component {
             }
         });
 
+        document.addEventListener('DOMContentLoaded', () => {
+            Livewire.on('removeFilter', (filterString) => {
+                Livewire.emit('removeFilter', filterString);
+            });
+        });
 
         let dataMap = $wire.get('dataMap');
         renderMarkers(dataMap, map);
