@@ -6,24 +6,7 @@ use App\Models\Dusun;
 use App\Models\Laporan;
 use Livewire\Volt\Component;
 use Livewire\WithPagination;
-
-$pseudoCodeLogic = "
-
-params = readParams()
-
-getRows(params)
-getCoords(params)
-
-on.paramChange {
-    getRows(params)
-    drawCoords(params)
-}
-
-on.showDetail (kegiatan) {
-    drawCoords(kegiatan)
-}
-
-";
+use Livewire\Attributes\Computed;
 
 new class extends Component {
     use WithPagination;
@@ -47,6 +30,24 @@ new class extends Component {
     public $headers = [['key' => 'nama', 'label' => 'Nama Kegiatan', 'class' => 'text-center w-1/4'], ['key' => 'dusun_nama', 'label' => 'Dusun', 'class' => 'text-center w-1/6'], ['key' => 'latest_progres', 'label' => 'Progres', 'class' => 'text-center w-1/6']];
 
     protected $listeners = ['filter-updated' => 'applyFilter', 'removeFilter' => 'removeFilter'];
+
+    #[Computed]
+    public function isOfficer() {
+        if (!auth()->user()) {
+            return;
+        }
+        $role = auth()->user()->role->name;
+        return $role === 'Petugas' || $role === 'Admin';
+    }
+
+    #[Computed]
+    public function isAdmin() {
+        if (!auth()->user()) {
+            return;
+        }
+        $role = auth()->user()->role->name;
+        return $role === 'Admin';
+    }
 
     public function applyFilter($filters)
     {
@@ -357,9 +358,11 @@ new class extends Component {
             <!-- Detail Kegiatan -->
             <div class="flex items-center mb-4">
                 <h2 class="font-bold text-md">Detail Kegiatan {{ $selectedKegiatan->nama }}</h2>
+                @if($this->isAdmin)
                 <x-button icon="m-pencil-square"
                     link="{{ route('edit-kegiatan', ['kegiatan' => $selectedKegiatan->id]) }}" spinner
                     class="ml-2 btn-sm btn-ghost" />
+                @endif
             </div>
 
             <div class="flex flex-col">
@@ -378,6 +381,7 @@ new class extends Component {
             <!-- Laporan Kegiatan -->
             <div class="flex my-4">
                 <h2 class="font-bold text-md">Laporan Kegiatan</h2>
+                @if($this->isOfficer)
                 <x-button icon="o-plus"
                     link="{{ route('add-laporan', [
                         'selectedBidang' => $selectedKegiatan->program->bidang->id,
@@ -385,6 +389,7 @@ new class extends Component {
                         'selectedKegiatan' => $selectedKegiatan->id,
                     ]) }}"
                     class="col-span-1 ml-2 justify-content-center h-fit btn-square btn-xs btn-outline" />
+                @endif
             </div>
             <ul class="timeline timeline-vertical">
                 @foreach ($selectedKegiatan->laporan as $laporan)
@@ -405,12 +410,14 @@ new class extends Component {
                         <div class="timeline-end">
                             <div class="flex items-center">
                                 <span class="font-bold">{{ $laporan->judul }}</span>
+                                @if($this->isOfficer)
                                 <x-button icon="m-pencil-square"
                                     link="{{ route('edit-laporan', ['laporan' => $laporan->id]) }}" spinner
                                     class="ml-2 btn-xs btn-ghost" />
                                 <x-button icon="o-trash"
                                     wire:click="deleteLaporan({{ $laporan->id }})" spinner
                                     class="ml-2 btn-xs btn-ghost" />
+                                @endif
                             </div>
                             <p class="opacity-80">{{ $laporan->deskripsi }}</p>
                         </div>

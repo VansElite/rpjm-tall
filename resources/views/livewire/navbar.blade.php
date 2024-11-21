@@ -4,6 +4,7 @@ use App\Models\Bidang;
 use App\Models\Program;
 use App\Models\Dusun;
 use Livewire\Volt\Component;
+use Livewire\Attributes\Computed;
 
 new class extends Component {
     public $selectedBidang;
@@ -14,6 +15,15 @@ new class extends Component {
     public $bidangs;
     public $statuses;
     public $dusuns;
+
+    #[Computed]
+    public function isAdmin() {
+        if (!auth()->user()) {
+            return;
+        }
+        $role = auth()->user()->role->name;
+        return $role === 'Admin';
+    }
 
     public function mount()
     {
@@ -110,6 +120,7 @@ new class extends Component {
 
     <div id="space" class="flex-grow"></div>
 
+    @if($this->isAdmin)
     <details class="dropdown w-fit">
         <summary class="m-1 btn btn-ghost">
             <x-icon name="o-plus" />
@@ -135,6 +146,7 @@ new class extends Component {
             <li><a wire:navigate href="#">Users</a></li>
         </ul>
     </details>
+    @endif
 
     <x-theme-toggle />
 
