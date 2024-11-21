@@ -25,6 +25,15 @@ new class extends Component {
         return $role === 'Admin';
     }
 
+    #[Computed]
+    public function isOfficer() {
+        if (!auth()->user()) {
+            return;
+        }
+        $role = auth()->user()->role->name;
+        return $role === 'Petugas' || $role === 'Admin';
+    }
+
     public function mount()
     {
         $this->bidangs = Bidang::all();
@@ -120,16 +129,20 @@ new class extends Component {
 
     <div id="space" class="flex-grow"></div>
 
-    @if($this->isAdmin)
+    @auth
     <details class="dropdown w-fit">
         <summary class="m-1 btn btn-ghost">
             <x-icon name="o-plus" />
             <span>Tambah</span>
         </summary>
         <ul class="menu dropdown-content bg-base-100 rounded-box z-[1] w-full p-2 shadow">
-            <li><a wire:navigate href="{{ route('add-bidang') }}">Bidang</a></li>
-            <li><a wire:navigate href="{{ route('add-kegiatan') }}">Kegiatan</a></li>
+            @if($this->isAdmin)
+                <li><a wire:navigate href="{{ route('add-bidang') }}">Bidang</a></li>
+                <li><a wire:navigate href="{{ route('add-kegiatan') }}">Kegiatan</a></li>
+            @endif
+            @if($this->isOfficer)
             <li><a wire:navigate href="{{ route('add-laporan') }}">Laporan</a></li>
+            @endif
         </ul>
     </details>
 
@@ -139,14 +152,18 @@ new class extends Component {
             <span>Direktori</span>
         </summary>
         <ul class="menu dropdown-content bg-base-100 rounded-box z-[1] w-full p-2 shadow">
+            @if($this->isAdmin)
+            <li><a wire:navigate href="#">Users</a></li>
             <li><a wire:navigate href="{{ route('direktori-bidang') }}">Bidang</a></li>
             <li><a wire:navigate href="{{ route('direktori-program') }}">Program</a></li>
             <li><a wire:navigate href="{{ route('direktori-kegiatan') }}">Kegiatan</a></li>
+            @endif
+            @if($this->isOfficer)
             <li><a wire:navigate href="{{ route('direktori-laporan') }}">Laporan</a></li>
-            <li><a wire:navigate href="#">Users</a></li>
+            @endif
         </ul>
     </details>
-    @endif
+    @endauth
 
     <x-theme-toggle />
 
