@@ -16,6 +16,8 @@ new class extends Component {
     public $statuses;
     public $dusuns;
 
+    public $showFilter;
+
     #[Computed]
     public function isAdmin() {
         if (!auth()->user()) {
@@ -38,6 +40,18 @@ new class extends Component {
     {
         $this->bidangs = Bidang::all();
         $this->dusuns = Dusun::all();
+
+        $currentRouteName = Route::currentRouteName();
+        $allowedRoutes = [
+            'index',
+            'add-kegiatan',
+            'edit-kegiatan',
+            'direktori-kegiatan',
+            'add-laporan',
+            'edit-laporan',
+            'direktori-laporan',
+        ];
+        $this->showFilter = in_array($currentRouteName, $allowedRoutes);
     }
 
     public function selectBidang($bidang)
@@ -96,6 +110,7 @@ new class extends Component {
 <nav class="flex items-center gap-2 p-2 border border-base-300">
     <a href="/" wire:navigate class="mx-4 text-2xl font-bold">RPJM</a>
 
+    @if($showFilter)
     <x-dropdown label="Bidang" class="btn-ghost" wire:model="selectedBidang">
         @foreach ($bidangs as $bidang)
         <x-menu-item
@@ -125,6 +140,7 @@ new class extends Component {
         <x-menu-item wire:click="selectYear('5')" title="Tahun 5" />
         <x-menu-item wire:click="selectYear('6')" title="Tahun 6" />
     </x-dropdown>
+    @endif
 
 
     <div id="space" class="flex-grow"></div>
