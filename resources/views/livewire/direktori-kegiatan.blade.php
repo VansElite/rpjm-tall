@@ -71,7 +71,7 @@ new class extends Component {
             @endscope
             @scope('actions', $kegiatan)
             <div class="flex gap-2">
-                <x-button icon="o-folder-open" wire:click="#" spinner class="btn-sm"/>
+                {{-- <x-button icon="o-folder-open" wire:click="#" spinner class="btn-sm"/> --}}
                 <x-button icon="o-pencil-square" wire:click="edit({{ $kegiatan->id }})" spinner class="btn-sm" />
                 <x-button icon="o-trash" wire:click="delete({{ $kegiatan->id }})" spinner class="btn-sm" />
             </div>
