@@ -169,7 +169,7 @@ new class extends Component {
         </summary>
         <ul class="menu dropdown-content bg-base-100 rounded-box z-[1] w-full p-2 shadow">
             @if($this->isAdmin)
-            <li><a wire:navigate href="#">Users</a></li>
+            <li><a wire:navigate href="{{ route('direktori-user')}}">Users</a></li>
             <li><a wire:navigate href="{{ route('direktori-bidang') }}">Bidang</a></li>
             <li><a wire:navigate href="{{ route('direktori-program') }}">Program</a></li>
             <li><a wire:navigate href="{{ route('direktori-kegiatan') }}">Kegiatan</a></li>
