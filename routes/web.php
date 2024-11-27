@@ -29,7 +29,8 @@ Route::middleware([admin::class])->group(function () {
     Volt::route('/kegiatan/add','form-kegiatan')->name('add-kegiatan');
     Volt::route('/kegiatan/{kegiatan}/edit','form-edit-kegiatan')->name('edit-kegiatan');
 
-    Volt::route('/user', 'direktori-user')->name('direktori-user');
+    Volt::route('/user', 'direktori-petugas')->name('direktori-petugas');
+    Volt::route('/user/add', 'form-petugas')->name('add-petugas');
 });
 
 // Define the logout

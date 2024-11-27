@@ -16,7 +16,7 @@ new class extends Component {
 
     public function render(): mixed
     {
-        return view('livewire.direktori-user', [
+        return view('livewire.direktori-petugas', [
             'users' => User::with('role')->paginate(15),
         ]);
     }
@@ -33,7 +33,7 @@ new class extends Component {
 }; ?>
 
 <div>
-    <x-card title="Data Users" class="flex mx-3 my-3 bg-base-200 rounded-xl" subtitle="Daftar semua Admin dan Petugas">
+    <x-card title="Data Petugas" class="flex mx-3 my-3 bg-base-200 rounded-xl" subtitle="Daftar semua Petugas">
         <x-table :headers="$headers" :rows="$users" with-pagination>
         {{-- Special `actions` slot --}}
             @scope('cell_latest_progres', $users)
