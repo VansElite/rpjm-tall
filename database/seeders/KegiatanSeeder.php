@@ -484,7 +484,7 @@ class KegiatanSeeder extends Seeder
             ],
             [
                 'id_program' => 17,
-                'nama' => 'Pembangunan/Rehabilitasi/Peningkatan/Pengerasan Jalan Desa',
+                'nama' => 'Pembangunan / Rehabilitasi / Peningkatan / Pengerasan Jalan Desa',
                 'status' => 'sedangBerjalan',
                 'volume' => '1',
                 'satuan' => 'unit',

@@ -17,6 +17,7 @@ new class extends Component {
     public $dusuns;
 
     public $showFilter;
+    public $showBidang;
 
     #[Computed]
     public function isAdmin() {
@@ -44,14 +45,15 @@ new class extends Component {
         $currentRouteName = Route::currentRouteName();
         $allowedRoutes = [
             'index',
-            'add-kegiatan',
-            'edit-kegiatan',
             'direktori-kegiatan',
-            'add-laporan',
-            'edit-laporan',
             'direktori-laporan',
         ];
+        $allowedBidangRoutes = [
+            ...$allowedRoutes,
+            'direktori-program'
+        ];
         $this->showFilter = in_array($currentRouteName, $allowedRoutes);
+        $this->showBidang = in_array($currentRouteName, $allowedBidangRoutes);
     }
 
     public function selectBidang($bidang)
@@ -110,7 +112,7 @@ new class extends Component {
 <nav class="flex items-center gap-2 p-2 border border-base-300">
     <a href="/" wire:navigate class="mx-4 text-2xl font-bold">RPJM</a>
 
-    @if($showFilter)
+    @if($showBidang)
     <x-dropdown label="Bidang" class="btn-ghost" wire:model="selectedBidang">
         @foreach ($bidangs as $bidang)
         <x-menu-item
@@ -119,6 +121,9 @@ new class extends Component {
         />
         @endforeach
     </x-dropdown>
+    @endif
+
+    @if($showFilter)
     <x-dropdown label="Dusun" class="btn-ghost" wire:model="selectedDusun">
         @foreach ($dusuns as $dusun)
         <x-menu-item

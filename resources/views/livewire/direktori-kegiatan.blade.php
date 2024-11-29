@@ -154,7 +154,7 @@ new class extends Component {
 
 <div>
     <x-card title="Data Kegiatan RPJM Tirtomulyo" class="flex mx-3 my-3 bg-base-200 rounded-xl" subtitle="Data Rencana Pembangunan Jangka Menengah Tirtomulyo">
-        <div class="mb-5 flex items-center">
+        <div class="flex items-center mb-5">
             <div class="flex flex-wrap gap-2">
                 @foreach ($activeFilters as $filter)
                     <span class="inline-flex items-center px-3 py-1 text-sm text-blue-800 bg-blue-100 rounded-full">
@@ -169,7 +169,7 @@ new class extends Component {
                 @endforeach
             </div>
         </div>
-        <x-table :headers="$headers" :rows="$kegiatans" with-pagination>
+        <x-table :headers="$headers" :rows="$kegiatans" with-pagination show-empty-text empty-text="Maaf, data tidak ditemukan.">
         {{-- Special `actions` slot --}}
             @scope('cell_latest_progres', $kegiatans)
             <p>{{ $kegiatans->latest_progres ?? '0' }}%</p>
