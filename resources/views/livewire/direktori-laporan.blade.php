@@ -125,7 +125,29 @@ new class extends Component {
 
     public function delete($id)
     {
+        $laporan = Laporan::find($id);
+        $kegiatan = $laporan->kegiatan;
+        // dd($kegiatan);
         Laporan::destroy($id);
+        $progres = $kegiatan->latestProgress->progres;
+        if ($progres === 0) {
+            $kegiatan->update([
+                'status' => 'direncanakan',
+            ]);
+            $kegiatan->save();
+        }elseif ($progres === 100) {
+            $kegiatan->update([
+                'status' => 'selesai',
+            ]);
+            $kegiatan->save();
+        }else {
+            if ($kegiatan->status !== 'sedangBerjalan') {
+                $kegiatan->update([
+                    'status' => 'sedangBerjalan',
+                ]);
+                $kegiatan->save();
+            }
+        };
         return to_route('direktori-laporan');
     }
 }; ?>

@@ -20,10 +20,11 @@ new class extends Component {
     public $kegiatan;
 
     public $selectedKegiatan;
+    public $selectedProgres;
     #[Validate('required', message: 'Jangan Kosongkan Judul Laporan')]
     public $judul;
     #[Validate('required', message: 'Berikan Persentase Progress Minimal 5%')]
-    public int $progres = 30;
+    public int $progres = 0;
     #[Validate('required', message: 'Jangan Kosongkan Deskripsi Laporan')]
     public $deskripsi;
 
@@ -31,6 +32,7 @@ new class extends Component {
         'selectedBidang' => ['except' => null],
         'selectedProgram' => ['except' => null],
         'selectedKegiatan' => ['except' => null],
+        'progres' => ['except' => null],
     ];
 
     public function mount(){
@@ -81,6 +83,15 @@ new class extends Component {
             ...Kegiatan::where('id_program', $programId)->get()];
     }
 
+
+    // Update Selected Program
+    public function updatedProgres($valProgres)
+    {
+        // Filter data berdasarkan Program yang dipilih
+        // dd($valProgres);
+        $this->progres = $valProgres;
+    }
+
     public function store()
     {
         $this->kegiatan = Kegiatan::find($this->selectedKegiatan);
@@ -93,18 +104,18 @@ new class extends Component {
         'progres' => $this->progres,
         'deskripsi' => $this->deskripsi,
     ]);
-    if ($this->progres = 0) {
+    if ($this->progres === 0) {
         $this->kegiatan->update([
             'status' => 'direncanakan',
         ]);
         $this->kegiatan->save();
-    }elseif ($this->progres = 100) {
+    }elseif ($this->progres === 100) {
         $this->kegiatan->update([
             'status' => 'selesai',
         ]);
         $this->kegiatan->save();
     }else {
-            if ($this->kegiatan->status != 'sedangBerjalan') {
+            if ($this->kegiatan->status !== 'sedangBerjalan') {
             $this->kegiatan->update([
                 'status' => 'sedangBerjalan',
             ]);
@@ -138,8 +149,8 @@ new class extends Component {
                 <x-input label="Judul Laporan" placeholder="Masukkan Judul Laporan" wire:model="judul" />
             </div>
             <div>
-                <x-range wire:model.live.debounce="progres" min="0" max="100" step="5" label="Progres Kegiatan"
-                    hint="Greater than 30." class="range-accent" />
+                <x-range wire:model.live.debounce="progres" min="0" max="100" step="5" label="Progres Kegiatan" class="range-accent" />
+                <p>Progres: {{ $progres }}</p>
             </div>
         </div>
 

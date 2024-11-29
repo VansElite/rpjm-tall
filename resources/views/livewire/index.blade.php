@@ -20,7 +20,7 @@ new class extends Component {
     public $selectedStatus; //prop filter Status
     public $selectedYear; //prop filter Tahun
     public string $search = ''; //prop untuk menyimpan input yang akan di search
-
+    public $modelKegiatan;
     public $selectedDetail = []; //prop menyimpan data kegiatan yang dipilih untuk digunakan pada card detail dan laporan
 
     public $detailKegiatan = []; //prop menyimpan data kegiatan yang dipilih untuk digunakan pada card detail dan laporan
@@ -266,6 +266,25 @@ new class extends Component {
     public function deleteLaporan($id)
     {
         Laporan::destroy($id);
+        $progres = $this->selectedKegiatan->latestProgress->progres;
+        if ($progres === 0) {
+            $this->selectedKegiatan->update([
+                'status' => 'direncanakan',
+            ]);
+            $this->selectedKegiatan->save();
+        }elseif ($progres === 100) {
+            $this->selectedKegiatan->update([
+                'status' => 'selesai',
+            ]);
+            $this->selectedKegiatan->save();
+        }else {
+            if ($this->selectedKegiatan->status !== 'sedangBerjalan') {
+                $this->selectedKegiatan->update([
+                    'status' => 'sedangBerjalan',
+                ]);
+                $this->selectedKegiatan->save();
+            }
+        };
         return to_route('index');
     }
 }; ?>
@@ -387,6 +406,7 @@ new class extends Component {
                         'selectedBidang' => $selectedKegiatan->program->bidang->id,
                         'selectedProgram' => $selectedKegiatan->program->id,
                         'selectedKegiatan' => $selectedKegiatan->id,
+                        'progres' => $selectedKegiatan->latestProgress->progres,
                     ]) }}"
                     class="col-span-1 ml-2 justify-content-center h-fit btn-square btn-xs btn-outline" />
                 @endif

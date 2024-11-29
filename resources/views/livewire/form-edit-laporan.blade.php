@@ -34,7 +34,7 @@ new class extends Component {
     public function mount()
     {
         //menambah data ke array pertama pada opsi x-select
-        $this->tempBidangs =  [
+        $this->tempBidangs = [
             'id' => null,
             'value' => null,
             'nama' => '-- Pilih Bidang --',
@@ -50,29 +50,20 @@ new class extends Component {
             'nama' => '-- Pilih Kegiatan --',
         ];
 
-
         //init untuk Opsi x-select
-        $this->bidangs = [$this->tempBidangs,
-            ...Bidang::all()->toArray()
-        ];
-        $this->programs = [$this->tempPrograms,
-            ...Program::all()->toArray()
-        ];
-        $this->kegiatans = [$this->tempKegiatans,
-            ...Kegiatan::all()->toArray()
-        ];
+        $this->bidangs = [$this->tempBidangs, ...Bidang::all()->toArray()];
+        $this->programs = [$this->tempPrograms, ...Program::all()->toArray()];
+        $this->kegiatans = [$this->tempKegiatans, ...Kegiatan::all()->toArray()];
 
         // data untuk init value model x-select
         $this->selectedBidang = $this->laporan->kegiatan->program->id_bidang;
         $this->selectedProgram = $this->laporan->kegiatan->id_program;
 
         // Isi nilai properti component dengan data laporan
-        $this->selectedKegiatan =  $this->laporan->kegiatan->id;
+        $this->selectedKegiatan = $this->laporan->kegiatan->id;
         $this->judul = $this->laporan->judul;
         $this->progres = $this->laporan->progres;
         $this->deskripsi = $this->laporan->deskripsi;
-
-
     }
 
     public function mounted()
@@ -81,21 +72,17 @@ new class extends Component {
         $this->updateSelectedProgram($this->selectedProgram);
     }
 
-
     public function updatedSelectedBidang($bidangId)
     {
-         // Filter data berdasarkan bidang yang dipilih
-         $this->programs = [$this->tempPrograms,
-            ...Program::where('id_bidang', $bidangId)->get()
-        ];
+        // Filter data berdasarkan bidang yang dipilih
+        $this->programs = [$this->tempPrograms, ...Program::where('id_bidang', $bidangId)->get()];
     }
 
     //Update Selected Program
     public function updatedSelectedProgram($programId)
     {
         // Filter data berdasarkan Program yang dipilih
-        $this->kegiatans = [$this->tempKegiatans,
-            ...Kegiatan::where('id_program', $programId)->get()];
+        $this->kegiatans = [$this->tempKegiatans, ...Kegiatan::where('id_program', $programId)->get()];
     }
 
     public function cancle()
@@ -111,17 +98,30 @@ new class extends Component {
             'progres' => $this->progres,
             'deskripsi' => $this->deskripsi,
         ]);
-        if ($this->progres < 30) {
+
+        // dd('hehe');
+        $this->progres = (int)$this->progres;
+        if ($this->progres === 0) {
             $this->kegiatan = Kegiatan::find($this->selectedKegiatan);
             $this->kegiatan->update([
-                'status' => 'sedangBerjalan',
+                'status' => 'direncanakan',
             ]);
-        }elseif ($this->progres = 100) {
+            $this->kegiatan->save();
+        } elseif ($this->progres === 100) {
             $this->kegiatan = Kegiatan::find($this->selectedKegiatan);
             $this->kegiatan->update([
                 'status' => 'selesai',
             ]);
-        };
+            $this->kegiatan->save();
+        } else {
+            $this->kegiatan = Kegiatan::find($this->selectedKegiatan);
+            if ($this->kegiatan->status !== 'sedangBerjalan') {
+                $this->kegiatan->update([
+                    'status' => 'sedangBerjalan',
+                ]);
+                $this->kegiatan->save();
+            }
+        }
 
         session()->flash('message', 'Data laporan berhasil diupdate.');
         // Kembali ke halaman daftar kegiatan atau halaman lain yang sesuai
@@ -134,7 +134,8 @@ new class extends Component {
         <x-form wire:submit.prevent="save" class="m-4">
             <div class="grid gap-4 md:grid-cols-2">
                 <div>
-                    <x-select label="Bidang" :options="$bidangs" option-value="id" option-label="nama" wire:model.live="selectedBidang" />
+                    <x-select label="Bidang" :options="$bidangs" option-value="id" option-label="nama"
+                        wire:model.live="selectedBidang" />
                 </div>
                 <div>
                     <x-select label="Program" :options="$programs" option-value="id" option-label="nama"
@@ -148,8 +149,8 @@ new class extends Component {
                     <x-input label="Judul Laporan" wire:model="judul" />
                 </div>
                 <div>
-                    <x-range wire:model.live.debounce="progres" min="5" max="100" step="5" label="Progres Kegiatan"
-                        hint="Greater than 30." class="range-accent" />
+                    <x-range wire:model.live.debounce="progres" min="0" max="100" step="5" label="Progres Kegiatan" class="range-accent" />
+                    <p>Progres: {{ $progres }}</p>
                 </div>
             </div>
 
@@ -157,7 +158,7 @@ new class extends Component {
                 hint="Max 1000 chars" rows="5" inline />
 
             <x-slot:actions>
-                <x-button label="Cancel" wire:click="cancle"/>
+                <x-button label="Cancel" wire:click="cancle" />
                 <x-button label="Simpan" class="btn-primary" type="submit" spinner="save" />
             </x-slot:actions>
         </x-form>
