@@ -1510,7 +1510,24 @@ class KegiatanSeeder extends Seeder
             ],
         ];
 
+        /*
+        kiri atas:   -7.957413, 110.278170
+        kanan bawah: -7.981636, 110.305603
+        */
+
         foreach($data as $kegiatan) {
+            // ganti ke int
+            $latFloat = (float)$kegiatan['latitude'];
+            $lonFloat = (float)$kegiatan['longitude'];
+            // random()
+            $minLat = -7.957413;
+            $maxLat = -7.981636;
+            $minLon = 110.278170;
+            $maxLon = 110.305603;
+
+            $randomLat = $minLat + mt_rand() / mt_getrandmax() * ($maxLat - $minLat);
+            $randomLon = $minLon + mt_rand() / mt_getrandmax() * ($maxLon - $minLon);
+            // balikkestrig()
             Kegiatan::create([
                 'id_program' => $kegiatan['id_program'],
                 'nama' => $kegiatan['nama'],
@@ -1525,8 +1542,8 @@ class KegiatanSeeder extends Seeder
                 'tahun_6'=> $kegiatan['tahun_6'],
                 'lokasi'=> $kegiatan['lokasi'],
                 'id_dusun'=> $kegiatan['id_dusun'],
-                'longitude'=> $kegiatan['longitude'],
-                'latitude'=> $kegiatan['latitude'],
+                'longitude'=> (string)$randomLon,
+                'latitude'=> (string)$randomLat,
                 'deskripsi'=> $kegiatan['deskripsi'],
             ]);
         };
