@@ -462,7 +462,7 @@ new class extends Component {
     @endif
 
     <!-- Bagian Peta (Ukuran Dinamis Berdasarkan $showDetail) -->
-    <div class="{{ $showDetail ? 'col-span-4 row-span-6' : 'col-span-8 row-span-12' }} bg-base-100 overflow-hidden" did="peta-wrap">
+    <div class="{{ $showDetail ? 'col-span-4 row-span-6' : 'col-span-8 row-span-12' }} p-0 bg-base-200 overflow-hidden" did="peta-wrap">
         <div wire:ignore class="w-full h-full" id="peta"></div>
     </div>
 </div>
@@ -551,6 +551,7 @@ new class extends Component {
                     warnaBidang[selectedKegiatan.bidang_nama] || warnaBidang['Default'],
                     selectedKegiatan.nama
                 );
+
                 const currentZoom = map.getZoom();
                 map.flyTo({
                     center: [selectedKegiatan.longitude, selectedKegiatan.latitude],
@@ -558,6 +559,7 @@ new class extends Component {
                     offset: [-250, -170],
                     duration: 800,
                 });
+                selectedMarker.togglePopup();
             }
         };
 
