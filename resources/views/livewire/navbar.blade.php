@@ -110,7 +110,7 @@ new class extends Component {
 }; ?>
 
 <nav class="flex items-center gap-2 p-2 border border-base-300">
-    <a href="/" wire:navigate class="mx-4 text-2xl font-bold">RPJM</a>
+    <a href="/" wire:navigate class="mx-4 text-2xl font-bold">RPJM Kal Tirtomulyo</a>
 
     @if($showBidang)
     <x-dropdown label="Bidang" class="btn-ghost" wire:model="selectedBidang">
