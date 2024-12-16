@@ -158,11 +158,13 @@ new class extends Component {
         $this->selectedStatus = null;
         $this->selectedYear = null;
         $this->activeFilters = [];
+        $this->showDetail = !$this->showDetail;
         $this->resetPage(); // Kembali ke halaman pertama
     }
 
     public function searchKegiatan()
     {
+
         $this->resetPage(); // Reset ke halaman pertama
 
         // Jika input kosong, reset pencarian
@@ -245,16 +247,12 @@ new class extends Component {
                 'data' => $this->selectedKegiatan->volume . ' ' . $this->selectedKegiatan->satuan,
             ],
             [
-                'name' => 'Tahun',
+                'name' => 'Tahun Pelaksanaan',
                 'data' => ($this->selectedKegiatan->tahun_1 ? '1, ' : '') . ($this->selectedKegiatan->tahun_2 ? '2, ' : '') . ($this->selectedKegiatan->tahun_3 ? '3, ' : '') . ($this->selectedKegiatan->tahun_4 ? '4, ' : '') . ($this->selectedKegiatan->tahun_5 ? '5, ' : '') . ($this->selectedKegiatan->tahun_6 ? '6' : ''),
             ],
             [
-                'name' => 'Lokasi',
+                'name' => 'Lokasi Kegiatan',
                 'data' => $this->selectedKegiatan->lokasi,
-            ],
-            [
-                'name' => 'Koordinat',
-                'data' => $this->selectedKegiatan->latitude . ', ' . $this->selectedKegiatan->longitude,
             ],
             [
                 'name' => 'Deskripsi',
@@ -289,9 +287,9 @@ new class extends Component {
     }
 }; ?>
 
-<div class="grid h-full grid-cols-3">
+<div class="grid h-full grid-cols-12 grid-rows-12 gap-2">
     <!-- Bagian Tabel (3 dari 12 kolom) -->
-    <div class="p-4 overflow-auto">
+    <div class="col-span-4 row-span-12 p-4 bg-base-100 overflow-auto">
         {{-- Component Search --}}
         <div class="flex justify-center mb-4">
             <x-card class="w-full h-fit">
@@ -363,43 +361,57 @@ new class extends Component {
             </div>
         </div>
         <x-menu-separator />
-        <div class="flex items-center grid-cols-3 gap-2 mt-6">
-            <p class="col-span-2 mr-5 text-sm text-right text-gray-500">Started Build 28 Oct 2024 with Tall Stack & Mary UI</p>
-            <div class="col-span-1 justify-items-end">
+        <div class="flex items-end justify-end gap-2 mt-6">
+            <div class="col-span-1 flex items-end">
                 <button wire:click="resetFilters" class="btn btn-sm btn-outline">Reset Filter</button>
             </div>
         </div>
     </div>
 
-    <!-- Bagian Card (4 dari 12 kolom), ditampilkan berdasarkan showDetail -->
+    <!-- Bagian Card (Detail Kegiatan & Laporan) - Muncul Jika $showDetail = true -->
     @if ($showDetail)
-        <div class="p-4 overflow-auto bg-base-200">
-            <!-- Detail Kegiatan -->
-            <div class="flex items-center mb-4">
-                <h2 class="font-bold text-md">Detail Kegiatan {{ $selectedKegiatan->nama }}</h2>
-                @if($this->isAdmin)
-                <x-button icon="m-pencil-square"
-                    link="{{ route('edit-kegiatan', ['kegiatan' => $selectedKegiatan->id]) }}" spinner
-                    class="ml-2 btn-sm btn-ghost" />
-                @endif
+    <!-- Bagian Detail Kegiatan -->
+    <div class="col-span-8 row-span-6 p-2 bg-base-200 overflow-auto shadow-lg h-fit">
+        <div class="card bg-base-100 shadow-lg p-3">
+            <div class="card-header text-lg font-bold">Detail Kegiatan {{ $selectedKegiatan->nama }}
+            @if($this->isAdmin)
+            <x-button icon="m-pencil-square"
+                link="{{ route('edit-kegiatan', ['kegiatan' => $selectedKegiatan->id]) }}" spinner
+                class="ml-2 btn-sm btn-ghost" />
+            @endif
             </div>
-
-            <div class="flex flex-col">
-                <table class="table">
-                    <tbody>
-                        @foreach ($detailKegiatan as $d)
-                            <tr>
-                                <td class="p-0 opacity-60">{{ $d['name'] }}</td>
-                                <td class="p-0">: {{ $d['data'] }}</td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                @foreach ($detailKegiatan as $d)
+                    <div class="flex items-center justify-between border-b py-2">
+                        <span class="opacity-100">{{ $d['name'] }}</span>
+                        <span>
+                            @if ($d['name'] === 'Status')
+                                @php
+                                        $badgeClass = match (strtolower($d['data'])) {
+                                            'selesai' => 'success',
+                                            'sedangberjalan' => 'warning',
+                                            'direncanakan' => 'error',
+                                            default => 'secondary',
+                                        };
+                                @endphp
+                                <x-badge class="badge-{{ $badgeClass }}" value="{{ $d['data'] }}"/>
+                            @elseif ($d['name'] === 'Progress')
+                                <x-progress value="{{ intval(str_replace('%', '', $d['data'])) }}" max="100" class="w-56 progress-success" />
+                                {{ $d['data']}}
+                            @else
+                                <span class="opacity-100">{{ Str::limit($d['data'], 48, '...') }}</span>
+                            @endif
+                        </span>
+                    </div>
+                @endforeach
             </div>
+        </div>
+    </div>
 
-            <!-- Laporan Kegiatan -->
-            <div class="flex my-4">
-                <h2 class="font-bold text-md">Laporan Kegiatan</h2>
+    <!-- Bagian Laporan -->
+    <div class="col-span-4 row-span-6 p-2 bg-base-200 overflow-auto shadow">
+        <div class="card bg-base-100 shadow-lg p-3">
+            <div class="card-header text-lg font-bold">Laporan Kegiatan
                 @if($this->isOfficer)
                 <x-button icon="o-plus"
                     link="{{ route('add-laporan', [
@@ -446,10 +458,11 @@ new class extends Component {
                 @endforeach
             </ul>
         </div>
+    </div>
     @endif
 
-    <!-- Bagian Map (5 dari 12 kolom) -->
-    <div class="{{ $showDetail ? 'col-span-1' : 'col-span-2' }}" did="peta-wrap">
+    <!-- Bagian Peta (Ukuran Dinamis Berdasarkan $showDetail) -->
+    <div class="{{ $showDetail ? 'col-span-4 row-span-6' : 'col-span-8 row-span-12' }} bg-base-100 overflow-hidden" did="peta-wrap">
         <div wire:ignore class="w-full h-full" id="peta"></div>
     </div>
 </div>
@@ -542,8 +555,8 @@ new class extends Component {
                 map.flyTo({
                     center: [selectedKegiatan.longitude, selectedKegiatan.latitude],
                     minzoom: currentZoom - 3,
-                    offset: [-225, -10],
-                    duration: 500,
+                    offset: [-250, -170],
+                    duration: 800,
                 });
             }
         };
